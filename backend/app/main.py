@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.db.mongodb import connect_to_mongo, close_mongo_connection
-from app.routers import civilian_auth, police_auth, users
+from app.routers import civilian_auth, police_auth, users, journeys, police, alerts
 from app.services.gemini_service import gemini_service
 
 # Configure logging
@@ -74,6 +74,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.include_router(civilian_auth.router)
 app.include_router(police_auth.router)
 app.include_router(users.router)
+app.include_router(journeys.router)
+app.include_router(police.router)
+app.include_router(alerts.router)
 
 @app.get("/")
 async def root():

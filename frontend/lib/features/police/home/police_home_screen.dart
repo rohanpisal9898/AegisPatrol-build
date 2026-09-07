@@ -37,8 +37,8 @@ class PoliceHomeScreen extends StatelessWidget {
                       onPressed: () {},
                     ),
                   ),
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Text(
                         'Unit Home',
                         style: TextStyle(
@@ -48,7 +48,7 @@ class PoliceHomeScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 4),
-                      Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.textSecondary),
+                      Text('🛡️', style: TextStyle(fontSize: 16)),
                     ],
                   ),
                   Container(
@@ -256,8 +256,8 @@ class PoliceHomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Column(
-                  children: const [
+                child: const Column(
+                  children: [
                     Text(
                       'AegisPatrol Patrol Home',
                       style: TextStyle(
@@ -268,7 +268,7 @@ class PoliceHomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'POLICE HOME SCREEN PLACEHOLDER',
+                      'PATROL SCREEN PLACEHOLDER',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,

@@ -14,10 +14,10 @@ class CivilianMainScreen extends StatefulWidget {
 class _CivilianMainScreenState extends State<CivilianMainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    CivilianHomeScreen(),
-    CivilianJourneysScreen(),
-    CivilianProfileScreen(),
+  final List<Widget> _screens = [
+    const CivilianHomeScreen(),
+    CivilianJourneysScreen(key: civilianJourneysKey),
+    const CivilianProfileScreen(),
   ];
 
   @override
@@ -45,6 +45,9 @@ class _CivilianMainScreenState extends State<CivilianMainScreen> {
           currentIndex: _currentIndex,
           onTap: (index) {
             setState(() => _currentIndex = index);
+            if (index == 1) {
+              civilianJourneysKey.currentState?.loadJourneys();
+            }
           },
           backgroundColor: Colors.white,
           elevation: 0,

@@ -154,8 +154,8 @@ class PoliceProfileScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
               ),
-              child: Column(
-                children: const [
+              child: const Column(
+                children: [
                   Text(
                     'Patrol Profile',
                     style: TextStyle(
@@ -189,9 +189,9 @@ class PoliceProfileScreen extends StatelessWidget {
                 ),
               ),
               onPressed: () => _handleLogout(context),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(Icons.logout_rounded, color: AppColors.error, size: 20),
                   SizedBox(width: 8),
                   Text(

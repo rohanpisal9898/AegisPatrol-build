@@ -23,14 +23,28 @@ async def connect_to_mongo():
     # Initialize indexes
     try:
         users_collection = db_instance.db["users"]
-        # Compound unique index on phone + role
-        # Allows same phone to exist in separate roles if needed, while preventing duplicates in same role
         await users_collection.create_index(
             [("phone", 1), ("role", 1)],
             unique=True,
             name="unique_phone_role_idx"
         )
-        logger.info("MongoDB connected successfully and unique index (phone + role) ensured.")
+
+        journeys_collection = db_instance.db["journeys"]
+        await journeys_collection.create_index([("user_id", 1)], name="journey_user_id_idx")
+        await journeys_collection.create_index([("created_at", -1)], name="journey_created_at_idx")
+
+        alerts_collection = db_instance.db["alerts"]
+        await alerts_collection.create_index([("user_id", 1)], name="alert_user_id_idx")
+        await alerts_collection.create_index([("journey_id", 1)], name="alert_journey_id_idx")
+
+        police_collection = db_instance.db["police_stations"]
+        await police_collection.create_index([("location", "2dsphere")], name="police_location_2dsphere_idx")
+
+        # Preload verified police stations if empty
+        from app.services.police_service import police_service
+        await police_service.seed_police_stations_if_empty(db_instance.db)
+
+        logger.info("MongoDB connected successfully and indexes ensured (users, journeys, alerts, police 2dsphere).")
     except Exception as e:
         logger.error("Error creating MongoDB indexes: %s", e)
 

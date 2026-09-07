@@ -180,18 +180,9 @@ class _CivilianLoginScreenState extends State<CivilianLoginScreen> {
                     const SizedBox(height: 20),
 
                     // Password Input
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text(
-                          'Password',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                        ),
-                        Text(
-                          'Forgot?',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary),
-                        ),
-                      ],
+                    const Text(
+                      'Password',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
