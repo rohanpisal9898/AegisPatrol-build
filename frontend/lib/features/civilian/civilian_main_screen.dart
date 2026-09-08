@@ -5,20 +5,31 @@ import 'journeys/civilian_journeys_screen.dart';
 import 'profile/civilian_profile_screen.dart';
 
 class CivilianMainScreen extends StatefulWidget {
-  const CivilianMainScreen({super.key});
+  final int initialIndex;
+
+  const CivilianMainScreen({
+    super.key,
+    this.initialIndex = 0,
+  });
 
   @override
   State<CivilianMainScreen> createState() => _CivilianMainScreenState();
 }
 
 class _CivilianMainScreenState extends State<CivilianMainScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
-  final List<Widget> _screens = [
+  late final List<Widget> _screens = [
     const CivilianHomeScreen(),
     CivilianJourneysScreen(key: civilianJourneysKey),
     const CivilianProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +42,7 @@ class _CivilianMainScreenState extends State<CivilianMainScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           border: const Border(
-            top: BorderSide(color: AppColors.border, width: 1),
+            top: BorderSide(color: Color(0xFFF1F5F9), width: 1.2),
           ),
           boxShadow: [
             BoxShadow(
@@ -41,38 +52,49 @@ class _CivilianMainScreenState extends State<CivilianMainScreen> {
             ),
           ],
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() => _currentIndex = index);
-            if (index == 1) {
-              civilianJourneysKey.currentState?.loadJourneys();
-            }
-          },
-          backgroundColor: Colors.white,
-          elevation: 0,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textMuted,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Home',
+        child: SafeArea(
+          top: false,
+          child: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() => _currentIndex = index);
+              if (index == 1) {
+                civilianJourneysKey.currentState?.loadJourneys();
+              }
+            },
+            backgroundColor: Colors.white,
+            elevation: 0,
+            selectedItemColor: const Color(0xFF0D7A48), // Active Green from reference
+            unselectedItemColor: const Color(0xFF64748B), // Slate gray inactive
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+              color: Color(0xFF0D7A48),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.route_outlined),
-              activeIcon: Icon(Icons.route_rounded),
-              label: 'Journeys',
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              color: Color(0xFF64748B),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline_rounded),
-              activeIcon: Icon(Icons.person_rounded),
-              label: 'Profile',
-            ),
-          ],
+            type: BottomNavigationBarType.fixed,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home_rounded),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.offline_bolt_outlined),
+                activeIcon: Icon(Icons.offline_bolt_rounded),
+                label: 'Journeys',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_rounded),
+                activeIcon: Icon(Icons.person_rounded),
+                label: 'Profile',
+              ),
+            ],
+          ),
         ),
       ),
     );

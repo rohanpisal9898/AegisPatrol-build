@@ -53,11 +53,38 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Journeys'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('Police Watch'), findsOneWidget);
-    expect(find.text('Quick Actions'), findsOneWidget);
-    expect(find.text('SOS'), findsOneWidget);
-    expect(find.text('Risk Map'), findsOneWidget);
-    expect(find.text('Share Live'), findsOneWidget);
+    expect(find.text('Alerts'), findsNothing);
+    expect(find.text('Start Your Safe Journey'), findsOneWidget);
+  });
+
+  testWidgets('CivilianProfileScreen renders profile UI matching reference screenshot', (WidgetTester tester) async {
+    await tester.pumpWidget(createTestApp(const CivilianMainScreen(initialIndex: 2)));
+    await tester.pumpAndSettle();
+
+    // Verify Title Header
+    expect(find.text('Profile'), findsAtLeastNWidgets(1));
+
+    // Verify Profile Hero Card elements
+    expect(find.text('Ananya Sharma'), findsAtLeastNWidgets(1));
+    expect(find.text('Civilian'), findsOneWidget);
+    expect(find.text('Stay Safe, Always'), findsOneWidget);
+
+    // Verify Personal Information Card
+    expect(find.text('Personal Information'), findsOneWidget);
+    expect(find.text('Full Name'), findsOneWidget);
+    expect(find.text('Phone Number'), findsOneWidget);
+    expect(find.text('+91 98765 43210'), findsOneWidget);
+    expect(find.text('District'), findsOneWidget);
+    expect(find.text('Mumbai Suburban, Maharashtra'), findsOneWidget);
+
+    // Verify Logout Button
+    expect(find.text('Logout'), findsOneWidget);
+    expect(find.byIcon(Icons.logout_rounded), findsOneWidget);
+
+    // Verify 3 Bottom Navigation tabs (Home, Journeys, Profile)
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Journeys'), findsOneWidget);
+    expect(find.text('Alerts'), findsNothing);
   });
 
   testWidgets('PoliceMainScreen renders exactly 4 navigation tabs: Home, Assignments, Journeys, Profile', (WidgetTester tester) async {

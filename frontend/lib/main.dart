@@ -36,6 +36,7 @@ class AegisPatrolApp extends StatelessWidget {
           '/civilian/auth': (context) => const CivilianLoginScreen(),
           '/civilian/signup': (context) => const CivilianSignupScreen(),
           '/civilian/home': (context) => const CivilianMainScreen(),
+          '/civilian/profile': (context) => const CivilianMainScreen(initialIndex: 2),
           '/police/auth': (context) => const PoliceLoginScreen(),
           '/police/signup': (context) => const PoliceSignupScreen(),
           '/police/home': (context) => const PoliceMainScreen(),
