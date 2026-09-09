@@ -54,7 +54,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
     final token = auth.token ?? '';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.civilianPinkSurface,
       body: SafeArea(
         child: Column(
           children: [
@@ -108,7 +108,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                     width: 8,
                     height: 8,
                     decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                      color: AppColors.civilianPink,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -136,13 +136,13 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 4),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF), // Soft Blue
+        color: AppColors.civilianPinkLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        border: Border.all(color: AppColors.civilianPink.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.science_rounded, color: Color(0xFF2563EB), size: 18),
+          const Icon(Icons.science_rounded, color: AppColors.civilianPink, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -152,7 +152,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1E40AF),
+                color: AppColors.civilianPinkDark,
               ),
             ),
           ),
@@ -161,7 +161,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 minimumSize: Size.zero,
-                backgroundColor: const Color(0xFF2563EB),
+                backgroundColor: AppColors.civilianPink,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -172,14 +172,14 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: const Icon(Icons.chevron_left_rounded, size: 24, color: Color(0xFF2563EB)),
+              icon: const Icon(Icons.chevron_left_rounded, size: 24, color: AppColors.civilianPink),
               onPressed: () => controller.prevDemoStep(token: token),
             ),
             const SizedBox(width: 6),
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: const Icon(Icons.chevron_right_rounded, size: 24, color: Color(0xFF2563EB)),
+              icon: const Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.civilianPink),
               onPressed: () => controller.nextDemoStep(token: token),
             ),
             const SizedBox(width: 6),
@@ -245,14 +245,14 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                 width: 90,
                 height: 90,
                 decoration: const BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: AppColors.civilianPinkLight,
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
                   child: Icon(
                     Icons.directions_walk_rounded,
                     size: 48,
-                    color: AppColors.primary,
+                    color: Color(0xFF4F46E5), // Indigo — contrasts beautifully on pink
                   ),
                 ),
               ),
@@ -277,7 +277,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.civilianPink,
                   minimumSize: const Size.fromHeight(50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
@@ -322,10 +322,10 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: AppColors.civilianPinkLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
+                child: const Icon(Icons.shield_outlined, color: AppColors.civilianPink, size: 20),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -399,7 +399,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: controller.destinationPosition != null
-                  ? AppColors.primary
+                  ? AppColors.civilianPink
                   : AppColors.border,
               width: controller.destinationPosition != null ? 1.5 : 1.0,
             ),
@@ -410,7 +410,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               Icon(
                 Icons.location_on_rounded,
                 color: controller.destinationPosition != null
-                    ? AppColors.primary
+                    ? AppColors.civilianPink
                     : AppColors.textSecondary,
                 size: 22,
               ),
@@ -433,7 +433,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                 const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.civilianPink),
                 )
               else if (_destinationController.text.isNotEmpty)
                 IconButton(
@@ -496,7 +496,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                               color: AppColors.primaryLight.withValues(alpha: 0.3),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.location_on_rounded, size: 18, color: AppColors.primary),
+                            child: const Icon(Icons.location_on_rounded, size: 18, color: AppColors.civilianPink),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -541,14 +541,14 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.primaryLight.withValues(alpha: 0.25),
+              color: AppColors.civilianPinkLight.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+              border: Border.all(color: AppColors.civilianPink.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.check_circle_rounded, size: 15, color: AppColors.primary),
+                const Icon(Icons.check_circle_rounded, size: 15, color: AppColors.civilianPink),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
@@ -558,7 +558,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: AppColors.civilianPink,
                     ),
                   ),
                 ),
@@ -598,12 +598,12 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.primaryLight.withValues(alpha: 0.4),
+                color: AppColors.civilianPinkLight.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '${controller.selectedDurationMinutes} min',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primary),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.civilianPink),
               ),
             ),
           ],
@@ -618,7 +618,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 3.0),
                 child: Material(
-                  color: isSelected ? AppColors.primary : Colors.white,
+                  color: isSelected ? AppColors.civilianPink : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
@@ -632,7 +632,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isSelected ? AppColors.primary : AppColors.border,
+                          color: isSelected ? AppColors.civilianPink : AppColors.border,
                         ),
                       ),
                       alignment: Alignment.center,
@@ -671,7 +671,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.remove_circle_outline_rounded, color: AppColors.primary, size: 28),
+                    icon: const Icon(Icons.remove_circle_outline_rounded, color: AppColors.civilianPink, size: 28),
                     splashRadius: 22,
                     tooltip: 'Decrease 5 mins',
                     onPressed: controller.selectedDurationMinutes > 1
@@ -741,7 +741,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 28),
+                    icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.civilianPink, size: 28),
                     splashRadius: 22,
                     tooltip: 'Increase 5 mins',
                     onPressed: controller.selectedDurationMinutes < 720
@@ -762,7 +762,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
         // Start Journey Button
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
+            backgroundColor: AppColors.civilianPink,
             minimumSize: const Size.fromHeight(50),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             elevation: 0,
@@ -795,23 +795,23 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryLight : Colors.white,
+            color: isSelected ? AppColors.civilianPinkLight : Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.border,
+              color: isSelected ? AppColors.civilianPink : AppColors.border,
               width: isSelected ? 1.8 : 1,
             ),
           ),
           child: Column(
             children: [
-              Icon(icon, color: isSelected ? AppColors.primary : AppColors.textSecondary, size: 24),
+              Icon(icon, color: isSelected ? AppColors.civilianPink : AppColors.textSecondary, size: 24),
               const SizedBox(height: 6),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                  color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                  color: isSelected ? AppColors.civilianPink : AppColors.textPrimary,
                 ),
               ),
             ],
@@ -837,7 +837,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               width: 10,
               height: 10,
               decoration: const BoxDecoration(
-                color: AppColors.primary,
+                color: AppColors.civilianPink,
                 shape: BoxShape.circle,
               ),
             ),
@@ -889,10 +889,10 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: AppColors.civilianPinkLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 22),
+                child: const Icon(Icons.shield_rounded, color: AppColors.civilianPink, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -998,10 +998,10 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               ),
               const SizedBox(height: 22),
 
-              // Button 1: "I'm Safe" (Green)
+              // Button 1: "I'm Safe" (Pink)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.civilianPink,
                   minimumSize: const Size.fromHeight(50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
@@ -1068,12 +1068,12 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
           ),
           child: Column(
             children: [
-              // Green Checkmark Icon in Mint Circle
+              // Pink Checkmark Icon in Circle
               Container(
                 width: 76,
                 height: 76,
                 decoration: const BoxDecoration(
-                  color: AppColors.primary,
+                  color: AppColors.civilianPink,
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
@@ -1130,7 +1130,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
               // CTA Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.civilianPink,
                   minimumSize: const Size.fromHeight(50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
@@ -1247,8 +1247,8 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
           child: _QuickActionCard(
             label: 'Nearby Police',
             sublabel: 'Find police\nstations',
-            bgColor: const Color(0xFFFEF3C7),
-            iconColor: const Color(0xFFF59E0B),
+            bgColor: const Color(0xFFEDE9FE), // Soft indigo
+            iconColor: const Color(0xFF4F46E5), // Indigo
             icon: Icons.local_police_rounded,
             onTap: () {
               NearbyPoliceSheet.show(context, token: token);

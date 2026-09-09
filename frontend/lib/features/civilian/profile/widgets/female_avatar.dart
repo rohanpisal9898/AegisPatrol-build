@@ -16,7 +16,7 @@ class FemaleAvatar extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: const Color(0xFFEAF5EE),
+        color: const Color(0xFFFCE4EC),
         border: Border.all(color: Colors.white, width: 3.5),
         boxShadow: [
           BoxShadow(
@@ -43,14 +43,14 @@ class _FemaleAvatarPainter extends CustomPainter {
     final h = size.height;
 
     // Background circle fill
-    final bgPaint = Paint()..color = const Color(0xFFE8F5EE);
+    final bgPaint = Paint()..color = const Color(0xFFFCE4EC);
     canvas.drawRect(Rect.fromLTWH(0, 0, w, h), bgPaint);
 
     final skinPaint = Paint()..color = const Color(0xFFFBD7BE);
     final skinShadowPaint = Paint()..color = const Color(0xFFF2C3A7);
     final hairPaint = Paint()..color = const Color(0xFF1E293B);
-    final clothesPaint = Paint()..color = const Color(0xFF0D7A48);
-    final collarPaint = Paint()..color = const Color(0xFF0A633A);
+    final clothesPaint = Paint()..color = const Color(0xFFE91E63);
+    final collarPaint = Paint()..color = const Color(0xFFC2185B);
 
     // 1. Back Hair (silhouette behind shoulders and head)
     final backHairPath = Path()

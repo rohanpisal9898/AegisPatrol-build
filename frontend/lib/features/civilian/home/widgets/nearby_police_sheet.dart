@@ -121,10 +121,10 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                         width: 36,
                         height: 36,
                         decoration: const BoxDecoration(
-                          color: AppColors.quickActionPoliceBg,
+                          color: AppColors.civilianPinkLight,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.local_police_rounded, color: AppColors.quickActionPoliceIcon, size: 20),
+                        child: const Icon(Icons.local_police_rounded, color: AppColors.civilianPink, size: 20),
                       ),
                       const SizedBox(width: 10),
                       const Expanded(
@@ -150,7 +150,7 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
           if (_isLoading)
             const Expanded(
               child: Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
+                child: CircularProgressIndicator(color: AppColors.civilianPink),
               ),
             )
           else if (_errorMessage != null)
@@ -167,7 +167,7 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _fetchNearbyPolice,
-                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.civilianPink),
                         child: const Text('Retry'),
                       ),
                     ],
@@ -226,7 +226,7 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: _selectedStation?.id == s.id ? AppColors.primary : AppColors.policeNavy,
+                                      color: _selectedStation?.id == s.id ? AppColors.civilianPink : AppColors.civilianPink,
                                       shape: BoxShape.circle,
                                       border: Border.all(color: Colors.white, width: 2),
                                       boxShadow: [
@@ -274,7 +274,7 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                         final isSelected = _selectedStation?.id == station.id;
 
                         return Material(
-                          color: isSelected ? AppColors.primaryLight : Colors.white,
+                          color: isSelected ? AppColors.civilianPinkSurface : Colors.white,
                           borderRadius: BorderRadius.circular(14),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(14),
@@ -283,7 +283,7 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
+                                border: Border.all(color: isSelected ? AppColors.civilianPink : AppColors.border),
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,12 +292,12 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                                     width: 38,
                                     height: 38,
                                     decoration: BoxDecoration(
-                                      color: isSelected ? AppColors.primary : AppColors.policeSurface,
+                                      color: isSelected ? AppColors.civilianPink : AppColors.civilianPinkLight,
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
                                       Icons.shield_rounded,
-                                      color: isSelected ? Colors.white : AppColors.policeNavy,
+                                      color: isSelected ? Colors.white : AppColors.civilianPink,
                                       size: 20,
                                     ),
                                   ),
@@ -321,13 +321,13 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                               decoration: BoxDecoration(
-                                                color: isSelected ? Colors.white : AppColors.background,
+                                                color: isSelected ? AppColors.civilianPinkLight : AppColors.background,
                                                 borderRadius: BorderRadius.circular(6),
-                                                border: Border.all(color: AppColors.border),
+                                                border: Border.all(color: isSelected ? AppColors.civilianPink : AppColors.border),
                                               ),
                                               child: Text(
                                                 '${station.distanceKm?.toStringAsFixed(1) ?? '—'} km',
-                                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isSelected ? AppColors.civilianPink : AppColors.textPrimary),
                                               ),
                                             ),
                                           ],
@@ -351,7 +351,7 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  const Icon(Icons.phone_rounded, size: 13, color: AppColors.primary),
+                                                  const Icon(Icons.phone_rounded, size: 13, color: AppColors.civilianPink),
                                                   const SizedBox(width: 4),
                                                   Flexible(
                                                     child: Text(
@@ -360,7 +360,7 @@ class _NearbyPoliceSheetState extends State<NearbyPoliceSheet> {
                                                       overflow: TextOverflow.ellipsis,
                                                       style: const TextStyle(
                                                         fontSize: 12,
-                                                        color: AppColors.primary,
+                                                        color: AppColors.civilianPink,
                                                         fontWeight: FontWeight.w700,
                                                         decoration: TextDecoration.underline,
                                                       ),

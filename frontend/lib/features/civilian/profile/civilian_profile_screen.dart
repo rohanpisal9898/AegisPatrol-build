@@ -100,12 +100,12 @@ class CivilianProfileScreen extends StatelessWidget {
             child: Column(
               children: [
                 // Centered "Profile" Title Header matching reference
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Center(
                     child: Text(
                       'Profile',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF0F172A), // Dark slate title
@@ -156,7 +156,7 @@ class CivilianProfileScreen extends StatelessWidget {
 
   Widget _buildLogoutButton(BuildContext context) {
     return Material(
-      color: const Color(0xFFFEECEB), // Soft light pink/red background
+      color: const Color(0xFFFCE4EC), // Soft pink background
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: () => _handleLogout(context),
@@ -168,12 +168,12 @@ class CivilianProfileScreen extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(
                 Icons.logout_rounded,
-                color: Color(0xFFEF4444), // Red logout icon
+                color: Color(0xFFE91E63), // Pink logout icon
                 size: 20,
               ),
               SizedBox(width: 8),
@@ -182,7 +182,7 @@ class CivilianProfileScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFFEF4444), // Red bold text
+                  color: Color(0xFFE91E63), // Pink bold text
                 ),
               ),
             ],

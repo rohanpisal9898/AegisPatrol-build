@@ -21,10 +21,10 @@ class ProfileHeroCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF5EE), // Very light mint/green background
+        color: const Color(0xFFFCE4EC), // Very light pink background
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFFD8EFE0),
+          color: const Color(0xFFF8BBD0),
           width: 1,
         ),
       ),
@@ -33,14 +33,14 @@ class ProfileHeroCard extends StatelessWidget {
         child: Stack(
           children: [
             // Soft decorative city skyline illustration at the bottom
-            Positioned(
+            const Positioned(
               left: 0,
               right: 0,
               bottom: 0,
               height: 70,
-              child: const CustomPaint(
+              child: CustomPaint(
                 painter: CitySkylinePainter(
-                  skylineColor: Color(0xFFC5E5CF),
+                  skylineColor: Color(0xFFF48FB1),
                 ),
               ),
             ),
@@ -79,7 +79,7 @@ class ProfileHeroCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD7F2E1), // Light mint pill background
+                            color: const Color(0xFFFCE4EC), // Light pink pill background
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -88,7 +88,7 @@ class ProfileHeroCard extends StatelessWidget {
                               const Icon(
                                 Icons.person_rounded,
                                 size: 14,
-                                color: Color(0xFF0D7A48),
+                                color: Color(0xFFE91E63),
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -96,7 +96,7 @@ class ProfileHeroCard extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF0D7A48),
+                                  color: Color(0xFFE91E63),
                                 ),
                               ),
                             ],

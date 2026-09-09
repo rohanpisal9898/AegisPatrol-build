@@ -93,12 +93,12 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
+                    color: AppColors.civilianPinkLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     journey.status == JourneyStatus.completed ? 'Completed' : 'Active',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.civilianPink),
                   ),
                 ),
               ],
@@ -118,7 +118,7 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: AppColors.civilianPink,
                 minimumSize: const Size.fromHeight(46),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -162,7 +162,7 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.civilianPinkSurface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
@@ -177,7 +177,7 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
         ),
       ),
       body: RefreshIndicator(
-        color: AppColors.primary,
+        color: AppColors.civilianPink,
         onRefresh: loadJourneys,
         child: _buildBody(),
       ),
@@ -186,7 +186,7 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+      return const Center(child: CircularProgressIndicator(color: AppColors.civilianPink));
     }
 
     if (_errorMessage != null) {
@@ -202,7 +202,7 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: loadJourneys,
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.civilianPink),
                 child: const Text('Retry'),
               ),
             ],
@@ -224,10 +224,10 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
                 width: 72,
                 height: 72,
                 decoration: const BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: AppColors.civilianPinkLight,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.route_outlined, size: 36, color: AppColors.primary),
+                child: const Icon(Icons.route_outlined, size: 36, color: AppColors.civilianPink),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -282,10 +282,10 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
               width: 44,
               height: 44,
               decoration: const BoxDecoration(
-                color: AppColors.primaryLight,
+                color: AppColors.civilianPinkLight,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.directions_walk_rounded, color: AppColors.primary, size: 24),
+              child: const Icon(Icons.directions_walk_rounded, color: AppColors.civilianPink, size: 24),
             ),
             title: Text(
               dateStr,
@@ -314,12 +314,12 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: AppColors.civilianPinkLight,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: const Text(
                         'Completed Safely',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.civilianPink),
                       ),
                     ),
                   ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import 'home/civilian_home_screen.dart';
 import 'journeys/civilian_journeys_screen.dart';
 import 'profile/civilian_profile_screen.dart';
@@ -64,12 +63,12 @@ class _CivilianMainScreenState extends State<CivilianMainScreen> {
             },
             backgroundColor: Colors.white,
             elevation: 0,
-            selectedItemColor: const Color(0xFF0D7A48), // Active Green from reference
+            selectedItemColor: const Color(0xFFE91E63), // Civilian pink
             unselectedItemColor: const Color(0xFF64748B), // Slate gray inactive
             selectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 12,
-              color: Color(0xFF0D7A48),
+              color: Color(0xFFE91E63),
             ),
             unselectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w500,

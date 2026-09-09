@@ -8,6 +8,12 @@ class AppColors {
   static const Color primaryAccent = Color(0xFF10B981); // Bright Emerald
   static const Color primarySurface = Color(0xFFF1F8F4); // Very light mint surface
 
+  // Civilian Pink Theme (Home screen accent)
+  static const Color civilianPink = Color(0xFFE91E63);        // Primary pink
+  static const Color civilianPinkLight = Color(0xFFFCE4EC);   // Soft pink tint
+  static const Color civilianPinkSurface = Color(0xFFFFF5F8); // Very light pink surface
+  static const Color civilianPinkDark = Color(0xFFC2185B);    // Deeper pink for press states
+
   // Police Brand Accent
   static const Color policePrimary = Color(0xFF0D7A48); // Consistent primary brand
   static const Color policeNavy = Color(0xFF1E293B); // Slate Navy

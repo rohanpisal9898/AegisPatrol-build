@@ -133,7 +133,6 @@ class CitySkylinePainter extends CustomPainter {
     // Angles for palm fronds (drooping arcs)
     final angles = [-160.0, -125.0, -90.0, -55.0, -20.0, 15.0];
     for (final angle in angles) {
-      final rad = angle * 3.14159 / 180.0;
       final frondTip = Offset(
         top.dx + frondRadius * 1.1 * (angle < -90 ? -1 : 1).abs() * (angle == -90 ? 0.2 : 0.8) * (angle < -90 ? -1 : 1),
         top.dy - frondRadius * 0.5 + (angle.abs() < 90 ? frondRadius * 0.6 : frondRadius * 0.7),

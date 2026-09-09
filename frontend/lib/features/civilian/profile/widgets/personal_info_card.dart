@@ -98,13 +98,13 @@ class PersonalInfoCard extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F7EE), // Soft mint icon background
+            color: const Color(0xFFFCE4EC), // Soft pink icon background
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             icon,
             size: 22,
-            color: const Color(0xFF0D7A48), // Deep safety emerald
+            color: const Color(0xFFE91E63), // Primary pink
           ),
         ),
 

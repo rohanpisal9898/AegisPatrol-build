@@ -87,15 +87,45 @@ void main() {
     expect(find.text('Alerts'), findsNothing);
   });
 
-  testWidgets('PoliceMainScreen renders exactly 4 navigation tabs: Home, Assignments, Journeys, Profile', (WidgetTester tester) async {
+  testWidgets('PoliceMainScreen renders exactly 4 navigation tabs: Home, Assignments, Alerts, Profile', (WidgetTester tester) async {
     await tester.pumpWidget(createTestApp(const PoliceMainScreen()));
 
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Assignments'), findsOneWidget);
-    expect(find.text('Journeys'), findsOneWidget);
+    expect(find.text('Alerts'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
     expect(find.text('Unit Home'), findsOneWidget);
     expect(find.text('Your Next Assignment'), findsOneWidget);
     expect(find.text('Go to Area'), findsOneWidget);
+  });
+
+  testWidgets('PoliceProfileScreen renders police profile UI matching reference screenshot', (WidgetTester tester) async {
+    await tester.pumpWidget(createTestApp(const PoliceMainScreen(initialIndex: 3)));
+    await tester.pumpAndSettle();
+
+    // Verify Title Header
+    expect(find.text('Profile'), findsAtLeastNWidgets(1));
+
+    // Verify Police Hero Card elements
+    expect(find.text('Rajesh Patil'), findsAtLeastNWidgets(1));
+    expect(find.text('Police Officer'), findsOneWidget);
+    expect(find.text('Serve • Protect • Support'), findsOneWidget);
+
+    // Verify Personal Information Card
+    expect(find.text('Personal Information'), findsOneWidget);
+    expect(find.text('Full Name'), findsOneWidget);
+    expect(find.text('Phone Number'), findsOneWidget);
+    expect(find.text('+91 98765 43210'), findsOneWidget);
+    expect(find.text('District'), findsOneWidget);
+    expect(find.text('Thane, Maharashtra'), findsOneWidget);
+
+    // Verify Logout Button
+    expect(find.text('Logout'), findsOneWidget);
+    expect(find.byIcon(Icons.logout_rounded), findsOneWidget);
+
+    // Verify Police Bottom Navigation tabs
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Assignments'), findsOneWidget);
+    expect(find.text('Alerts'), findsOneWidget);
   });
 }

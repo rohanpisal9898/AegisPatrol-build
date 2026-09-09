@@ -67,10 +67,10 @@ class HelplineSheet extends StatelessWidget {
                         width: 36,
                         height: 36,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFF3E8FF), // Light purple
+                          color: Color(0xFFFCE4EC), // Soft pink
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.call_rounded, color: Color(0xFF9333EA), size: 20),
+                        child: const Icon(Icons.call_rounded, color: Color(0xFFE91E63), size: 20),
                       ),
                       const SizedBox(width: 10),
                       const Expanded(
@@ -118,10 +118,10 @@ class HelplineSheet extends StatelessWidget {
                             width: 42,
                             height: 42,
                             decoration: BoxDecoration(
-                              color: AppColors.primaryLight,
+                              color: AppColors.civilianPinkLight,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(Icons.phone_in_talk_rounded, color: AppColors.primary, size: 20),
+                            child: const Icon(Icons.phone_in_talk_rounded, color: AppColors.civilianPink, size: 20),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -167,7 +167,7 @@ class HelplineSheet extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: AppColors.civilianPink,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Row(
