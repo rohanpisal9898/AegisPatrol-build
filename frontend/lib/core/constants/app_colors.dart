@@ -14,11 +14,11 @@ class AppColors {
   static const Color civilianPinkSurface = Color(0xFFFFF5F8); // Very light pink surface
   static const Color civilianPinkDark = Color(0xFFC2185B);    // Deeper pink for press states
 
-  // Police Brand Accent
-  static const Color policePrimary = Color(0xFF0D7A48); // Consistent primary brand
+  // Police Brand Accent (Blue matching reference UI)
+  static const Color policePrimary = Color(0xFF2563EB); // Vibrant Safety Blue
   static const Color policeNavy = Color(0xFF1E293B); // Slate Navy
-  static const Color policeLight = Color(0xFFE2E8F0); // Slate Light
-  static const Color policeSurface = Color(0xFFF8FAFC); // Slate 50
+  static const Color policeLight = Color(0xFFEFF6FF); // Soft Light Blue
+  static const Color policeSurface = Color(0xFFF4F8FC); // Soft Light Blue Surface
   static const Color policeTeal = Color(0xFF0F766E);
 
   // Quick Action Pill / Card Colors from Reference

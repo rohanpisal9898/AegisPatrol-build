@@ -98,7 +98,7 @@ class PolicePersonalInfoCard extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F5EE), // Soft light-green background
+            color: const Color(0xFFEFF6FF), // Soft light-blue background
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(

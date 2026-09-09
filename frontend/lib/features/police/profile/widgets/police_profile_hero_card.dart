@@ -21,10 +21,10 @@ class PoliceProfileHeroCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFEDF7F2), // Very light green background
+        color: const Color(0xFFEFF6FF), // Soft light-blue background
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFFA7D7BE),
+          color: const Color(0xFFBFDBFE), // Soft blue border
           width: 1.2,
         ),
       ),
@@ -40,7 +40,7 @@ class PoliceProfileHeroCard extends StatelessWidget {
               width: 175,
               child: CustomPaint(
                 painter: PoliceStationPainter(
-                  tintColor: Color(0xFF6EE7B7), // Mint green tint
+                  tintColor: Color(0xFF93C5FD), // Soft blue tint
                 ),
               ),
             ),
@@ -79,7 +79,7 @@ class PoliceProfileHeroCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD1FAE5), // Light green pill background
+                            color: const Color(0xFFDBEAFE), // Light blue pill background
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(

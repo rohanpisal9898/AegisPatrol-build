@@ -30,6 +30,50 @@ async def get_nearby_police_stations(
         radius_km=radius_km
     )
 
+from app.schemas.police import PoliceJourneyCardResponse
+from fastapi import HTTPException, status
+
+@router.get("/journeys", response_model=List[PoliceJourneyCardResponse])
+async def get_authorized_active_journeys(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: UserResponse = Depends(get_current_user_dependency)
+):
+    """
+    Get real active civilian journeys authorized for the logged-in police officer's jurisdiction/district.
+    Jurisdiction is strictly derived from the authenticated officer's JWT token context.
+    Returns [] (empty list) if no active journeys exist for that jurisdiction.
+    """
+    if current_user.role != "police":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to police accounts only"
+        )
+    return await police_service.get_authorized_active_journeys(db=db, police_user=current_user)
+
+@router.get("/journeys/{journey_id}", response_model=PoliceJourneyCardResponse)
+async def get_authorized_journey_detail(
+    journey_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: UserResponse = Depends(get_current_user_dependency)
+):
+    """
+    Get detailed tracking information for a single active journey if authorized by district.
+    Enforces server-side jurisdiction check.
+    """
+    if current_user.role != "police":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to police accounts only"
+        )
+    journeys = await police_service.get_authorized_active_journeys(db=db, police_user=current_user)
+    matching = [j for j in journeys if j.journey_id == journey_id]
+    if not matching:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Journey not found or not authorized for officer jurisdiction"
+        )
+    return matching[0]
+
 @router.post("/seed")
 async def seed_police_stations(
     db: AsyncIOMotorDatabase = Depends(get_database)

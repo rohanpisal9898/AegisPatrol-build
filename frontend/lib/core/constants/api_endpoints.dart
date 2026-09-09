@@ -29,7 +29,8 @@ class ApiEndpoints {
     return url;
   }
 
-  // Police Stations
+  // Police Stations & Journeys
+  static const String policeJourneys = '$baseUrl/police/journeys';
   static String nearbyPolice(double lat, double lon, {double radiusKm = 10.0}) =>
       '$baseUrl/police/nearby?lat=$lat&lon=$lon&radius_km=$radiusKm';
 

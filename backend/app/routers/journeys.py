@@ -30,6 +30,21 @@ async def require_civilian(
         )
     return current_user
 
+@router.get("/active", response_model=Optional[JourneyResponse])
+async def get_active_journey(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: UserResponse = Depends(require_civilian)
+):
+    """
+    Get the current active/ongoing safe journey for the authenticated civilian.
+    Automatically checks for and processes journey duration expiration.
+    Returns null if no active journey exists.
+    """
+    return await journey_service.get_active_user_journey(
+        db=db,
+        user_id=current_user.id
+    )
+
 @router.get("/places/search")
 async def search_places(
     q: str,

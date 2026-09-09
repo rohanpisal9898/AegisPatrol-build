@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/constants/app_colors.dart';
@@ -34,14 +33,23 @@ class _CivilianHomeContent extends StatefulWidget {
 
 class _CivilianHomeContentState extends State<_CivilianHomeContent> {
   final TextEditingController _destinationController = TextEditingController();
-  final TextEditingController _durationController = TextEditingController(text: '30');
-  final FocusNode _durationFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final controller = Provider.of<CivilianHomeController>(context, listen: false);
+      if (auth.token != null && auth.token!.isNotEmpty) {
+        controller.checkAndRestoreActiveJourney(token: auth.token!);
+      }
+    });
+  }
 
   @override
   void dispose() {
     _destinationController.dispose();
-    _durationController.dispose();
-    _durationFocusNode.dispose();
     super.dispose();
   }
 
@@ -587,175 +595,102 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
         ),
         const SizedBox(height: 20),
 
-        // Expected Duration Selector (Customizable)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Expected Duration',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.civilianPinkLight.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '${controller.selectedDurationMinutes} min',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.civilianPink),
-              ),
-            ),
-          ],
+        // Share Until Selector (Dropdown)
+        const Text(
+          'Share Until',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
         ),
         const SizedBox(height: 10),
-
-        // Quick Preset Chips (15m, 30m, 45m, 60m, 90m)
-        Row(
-          children: [15, 30, 45, 60, 90].map((mins) {
-            final isSelected = controller.selectedDurationMinutes == mins;
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                child: Material(
-                  color: isSelected ? AppColors.civilianPink : Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () {
-                      controller.setExpectedDuration(mins);
-                      _durationController.text = mins.toString();
-                      _durationFocusNode.unfocus();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isSelected ? AppColors.civilianPink : AppColors.border,
-                        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: [60, 120, 180, 240, 300].contains(controller.selectedDurationMinutes)
+                  ? controller.selectedDurationMinutes
+                  : 60,
+              isExpanded: true,
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.civilianPink),
+              dropdownColor: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              items: const [
+                DropdownMenuItem<int>(
+                  value: 60,
+                  child: Row(
+                    children: [
+                      Icon(Icons.timer_outlined, size: 20, color: AppColors.civilianPink),
+                      SizedBox(width: 10),
+                      Text(
+                        '1 hour',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                       ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '${mins}m',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? Colors.white : AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
                 ),
-              ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 10),
-
-        // Fast & Direct Editable Stepper Box
-        Builder(
-          builder: (context) {
-            // Keep text in sync when not actively focused
-            if (!_durationFocusNode.hasFocus &&
-                _durationController.text != controller.selectedDurationMinutes.toString()) {
-              _durationController.text = controller.selectedDurationMinutes.toString();
-            }
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.remove_circle_outline_rounded, color: AppColors.civilianPink, size: 28),
-                    splashRadius: 22,
-                    tooltip: 'Decrease 5 mins',
-                    onPressed: controller.selectedDurationMinutes > 1
-                        ? () {
-                            final newVal = (controller.selectedDurationMinutes - 5).clamp(1, 720);
-                            controller.setExpectedDuration(newVal);
-                            _durationController.text = newVal.toString();
-                          }
-                        : null,
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.timer_outlined, size: 20, color: AppColors.textSecondary),
-                          const SizedBox(width: 8),
-                          Container(
-                            constraints: const BoxConstraints(minWidth: 44, maxWidth: 84),
-                            child: TextField(
-                              controller: _durationController,
-                              focusNode: _durationFocusNode,
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(4),
-                              ],
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
-                              ),
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                border: InputBorder.none,
-                                hintText: '30',
-                                hintStyle: TextStyle(color: AppColors.textMuted),
-                              ),
-                              onChanged: (val) {
-                                final parsed = int.tryParse(val);
-                                if (parsed != null && parsed > 0) {
-                                  controller.setExpectedDuration(parsed);
-                                }
-                              },
-                              onSubmitted: (val) {
-                                final parsed = int.tryParse(val) ?? 30;
-                                final clamped = parsed.clamp(1, 720);
-                                controller.setExpectedDuration(clamped);
-                                _durationController.text = clamped.toString();
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'min',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
+                DropdownMenuItem<int>(
+                  value: 120,
+                  child: Row(
+                    children: [
+                      Icon(Icons.timer_outlined, size: 20, color: AppColors.civilianPink),
+                      SizedBox(width: 10),
+                      Text(
+                        '2 hours',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                       ),
-                    ),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.civilianPink, size: 28),
-                    splashRadius: 22,
-                    tooltip: 'Increase 5 mins',
-                    onPressed: controller.selectedDurationMinutes < 720
-                        ? () {
-                            final newVal = (controller.selectedDurationMinutes + 5).clamp(1, 720);
-                            controller.setExpectedDuration(newVal);
-                            _durationController.text = newVal.toString();
-                          }
-                        : null,
+                ),
+                DropdownMenuItem<int>(
+                  value: 180,
+                  child: Row(
+                    children: [
+                      Icon(Icons.timer_outlined, size: 20, color: AppColors.civilianPink),
+                      SizedBox(width: 10),
+                      Text(
+                        '3 hours',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          },
+                ),
+                DropdownMenuItem<int>(
+                  value: 240,
+                  child: Row(
+                    children: [
+                      Icon(Icons.timer_outlined, size: 20, color: AppColors.civilianPink),
+                      SizedBox(width: 10),
+                      Text(
+                        '4 hours',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                      ),
+                    ],
+                  ),
+                ),
+                DropdownMenuItem<int>(
+                  value: 300,
+                  child: Row(
+                    children: [
+                      Icon(Icons.timer_outlined, size: 20, color: AppColors.civilianPink),
+                      SizedBox(width: 10),
+                      Text(
+                        '5 hours',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              onChanged: (int? newMinutes) {
+                if (newMinutes != null) {
+                  controller.setExpectedDuration(newMinutes);
+                }
+              },
+            ),
+          ),
         ),
         const SizedBox(height: 24),
 

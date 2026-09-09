@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Dict, Any
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from bson import ObjectId
@@ -21,6 +21,44 @@ from app.services.routing_service import routing_service
 logger = logging.getLogger("aegispatrol.journeys")
 
 class JourneyService:
+
+    @classmethod
+    async def auto_expire_journeys(cls, db: AsyncIOMotorDatabase):
+        """
+        Auto-expires active journeys whose duration has elapsed based on started_at + expected_duration_minutes.
+        Transitions status from active/unusual_activity/safety_alert to completed.
+        """
+        collection = db["journeys"]
+        now = datetime.now(timezone.utc)
+        active_statuses = [JourneyStatus.ACTIVE.value, JourneyStatus.UNUSUAL_ACTIVITY.value, JourneyStatus.SAFETY_ALERT.value]
+
+        cursor = collection.find({"status": {"$in": active_statuses}})
+        docs = await cursor.to_list(length=200)
+
+        for doc in docs:
+            started_at = doc.get("started_at")
+            if not isinstance(started_at, datetime):
+                continue
+            if started_at.tzinfo is None:
+                started_at = started_at.replace(tzinfo=timezone.utc)
+
+            expected_mins = doc.get("expected_duration_minutes", 60)
+            expire_at = started_at + timedelta(minutes=expected_mins)
+
+            if now >= expire_at:
+                actual_mins = float(expected_mins)
+                await collection.update_one(
+                    {"_id": doc["_id"]},
+                    {
+                        "$set": {
+                            "status": JourneyStatus.COMPLETED.value,
+                            "actual_duration_minutes": actual_mins,
+                            "ended_at": expire_at,
+                            "updated_at": now
+                        }
+                    }
+                )
+                logger.info("Journey %s auto-expired after %s mins", str(doc["_id"]), expected_mins)
 
     @classmethod
     async def start_journey(
@@ -48,6 +86,15 @@ class JourneyService:
             )
             if route_data:
                 distance_km = route_data.distance_km
+
+        if not route_data and start_loc:
+            route_data = RouteData(
+                distance_km=0.0,
+                duration_minutes=float(request.expected_duration_minutes),
+                coordinates=[[start_loc.lon, start_loc.lat]]
+            )
+        elif route_data and start_loc and not route_data.coordinates:
+            route_data.coordinates = [[start_loc.lon, start_loc.lat]]
 
         journey_doc = {
             "user_id": user_id,
@@ -106,16 +153,19 @@ class JourneyService:
         collection = db["journeys"]
         now = datetime.now(timezone.utc)
 
-        # 1. Verify journey belongs to user
+        # 1. Run auto-expiration check
+        await cls.auto_expire_journeys(db)
+
+        # 2. Verify journey belongs to user
         try:
             journey = await collection.find_one({"_id": ObjectId(journey_id), "user_id": user_id})
         except Exception:
             return None
 
-        if not journey:
+        if not journey or journey.get("status") == JourneyStatus.COMPLETED.value:
             return None
 
-        # 2. Evaluate risk via MockRiskService
+        # 3. Evaluate risk via MockRiskService
         eval_result = await mock_risk_service.evaluate_risk(
             journey_id=journey_id,
             lat=request.lat,
@@ -126,7 +176,7 @@ class JourneyService:
         current_max = journey.get("risk_score_max", 0.0)
         new_max = max(current_max, eval_result.risk_score)
 
-        # 3. Update MongoDB
+        # 4. Update MongoDB including pushing current location to route.coordinates
         await collection.update_one(
             {"_id": ObjectId(journey_id)},
             {
@@ -137,6 +187,9 @@ class JourneyService:
                     "status": eval_result.status.value,
                     "risk_score_max": new_max,
                     "updated_at": now
+                },
+                "$push": {
+                    "route.coordinates": [request.lon, request.lat]
                 }
             }
         )
@@ -205,6 +258,23 @@ class JourneyService:
         )
 
     @classmethod
+    async def get_active_user_journey(
+        cls,
+        db: AsyncIOMotorDatabase,
+        user_id: str
+    ) -> Optional[JourneyResponse]:
+        await cls.auto_expire_journeys(db)
+        collection = db["journeys"]
+        active_statuses = [JourneyStatus.ACTIVE.value, JourneyStatus.UNUSUAL_ACTIVITY.value, JourneyStatus.SAFETY_ALERT.value]
+        doc = await collection.find_one({
+            "user_id": user_id,
+            "status": {"$in": active_statuses}
+        })
+        if not doc:
+            return None
+        return cls._doc_to_response(doc)
+
+    @classmethod
     async def get_journey(
         cls,
         db: AsyncIOMotorDatabase,
@@ -228,6 +298,7 @@ class JourneyService:
         db: AsyncIOMotorDatabase,
         user_id: str
     ) -> List[JourneyResponse]:
+        await cls.auto_expire_journeys(db)
         collection = db["journeys"]
         cursor = collection.find({
             "user_id": user_id,

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import logging
 import math
 from typing import List, Dict, Any, Optional
@@ -5,6 +6,9 @@ import httpx
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from bson import ObjectId
 from app.models.police_station import PoliceStationResponse
+from app.schemas.user import UserResponse
+from app.schemas.police import PoliceJourneyCardResponse
+from app.models.journey import JourneyStatus, RiskLevel, TravelMode, GeoLocation, RouteData
 
 logger = logging.getLogger("aegispatrol.police")
 
@@ -144,6 +148,59 @@ OVERPASS_ENDPOINTS = [
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter"
 ]
+
+def safe_parse_geolocation(raw: Any) -> Optional[GeoLocation]:
+    if not isinstance(raw, dict):
+        return None
+    try:
+        lat = float(raw.get("lat", 0.0))
+        lon = float(raw.get("lon", 0.0))
+        return GeoLocation(lat=lat, lon=lon)
+    except Exception:
+        return None
+
+def safe_parse_route_data(raw: Any) -> Optional[RouteData]:
+    if not isinstance(raw, dict):
+        return None
+    try:
+        dist = float(raw.get("distance_km", 0.0))
+        dur = float(raw.get("duration_minutes", 0.0))
+        coords = raw.get("coordinates", [])
+        clean_coords = []
+        if isinstance(coords, list):
+            for c in coords:
+                if isinstance(c, list) and len(c) >= 2:
+                    clean_coords.append([float(c[0]), float(c[1])])
+        return RouteData(distance_km=dist, duration_minutes=dur, coordinates=clean_coords)
+    except Exception:
+        return None
+
+def safe_parse_status(val: Any) -> JourneyStatus:
+    if isinstance(val, JourneyStatus):
+        return val
+    s = str(val).lower() if val else "active"
+    for item in JourneyStatus:
+        if item.value == s:
+            return item
+    return JourneyStatus.ACTIVE
+
+def safe_parse_risk_level(val: Any) -> RiskLevel:
+    if isinstance(val, RiskLevel):
+        return val
+    s = str(val).lower() if val else "normal"
+    for item in RiskLevel:
+        if item.value == s:
+            return item
+    return RiskLevel.NORMAL
+
+def safe_parse_travel_mode(val: Any) -> TravelMode:
+    if isinstance(val, TravelMode):
+        return val
+    s = str(val).lower() if val else "walk"
+    for item in TravelMode:
+        if item.value == s:
+            return item
+    return TravelMode.WALK
 
 class PoliceService:
 
@@ -336,5 +393,124 @@ out center 25;"""
             _POLICE_CACHE[cache_key] = (now, final_list)
 
         return final_list
+
+    @classmethod
+    async def get_authorized_active_journeys(
+        cls,
+        db: AsyncIOMotorDatabase,
+        police_user: UserResponse
+    ) -> List[PoliceJourneyCardResponse]:
+        """
+        Fetches active civilian journeys authorized for the given police officer's district.
+        District is extracted strictly from police_user (JWT token context).
+        Enforces district-level isolation: Returns ONLY real civilian journeys matching officer jurisdiction.
+        Returns empty list [] if no active journeys exist for that district.
+        """
+        police_district = police_user.district.strip()
+        if not police_district:
+            return []
+
+        # Extract primary district name (e.g. "Thane" from "Thane, Maharashtra")
+        primary_district = police_district.split(",")[0].strip()
+
+        users_col = db["users"]
+        journeys_col = db["journeys"]
+
+        # 1. Find all civilian users registered in this police officer's district
+        district_regex = f".*{primary_district}.*"
+        civilian_cursor = users_col.find({
+            "role": "civilian",
+            "district": {"$regex": district_regex, "$options": "i"}
+        })
+        civilians = await civilian_cursor.to_list(length=200)
+
+        civilian_user_map = {}
+        for civ in civilians:
+            cid = str(civ["_id"])
+            civilian_user_map[cid] = civ.get("name", "Civilian User")
+
+        civilian_user_ids = list(civilian_user_map.keys())
+
+        # Auto-expire any journeys whose Share Until duration has passed
+        from app.services.journey_service import JourneyService
+        await JourneyService.auto_expire_journeys(db)
+
+        # 2. Query MongoDB journeys for active/monitoring journeys matching jurisdiction:
+        # Either the civilian's registered district matches officer's district OR journey started in officer's district.
+        active_statuses = ["active", "unusual_activity", "safety_alert"]
+        query = {
+            "status": {"$in": active_statuses},
+            "$or": [
+                {"user_id": {"$in": civilian_user_ids}},
+                {"start_location_name": {"$regex": district_regex, "$options": "i"}}
+            ]
+        }
+
+        cursor = journeys_col.find(query).sort("started_at", -1)
+        journey_docs = await cursor.to_list(length=100)
+
+        now = datetime.now(timezone.utc)
+        results: List[PoliceJourneyCardResponse] = []
+
+        for doc in journey_docs:
+            user_id = doc.get("user_id", "")
+            civilian_name = civilian_user_map.get(user_id)
+
+            # If user_id wasn't in our initial map, query user record directly
+            if not civilian_name and user_id:
+                try:
+                    u_doc = await users_col.find_one({"_id": ObjectId(user_id)})
+                    if u_doc:
+                        civilian_name = u_doc.get("name", "Civilian User")
+                        civilian_user_map[user_id] = civilian_name
+                except Exception:
+                    pass
+
+            if not civilian_name:
+                civilian_name = "Civilian User"
+
+            started_at = doc.get("started_at")
+            if isinstance(started_at, datetime):
+                if started_at.tzinfo is None:
+                    started_at = started_at.replace(tzinfo=timezone.utc)
+                elapsed_minutes = max(0, int((now - started_at).total_seconds() / 60.0))
+            else:
+                elapsed_minutes = 0
+
+            jid_str = str(doc["_id"])
+            short_id = f"#{jid_str[-4:].upper()}"
+
+            start_loc = safe_parse_geolocation(doc.get("start_location"))
+            current_loc = safe_parse_geolocation(doc.get("current_location"))
+            dest_loc = safe_parse_geolocation(doc.get("destination"))
+            route_obj = safe_parse_route_data(doc.get("route"))
+
+            status_val = safe_parse_status(doc.get("status"))
+            risk_level_val = safe_parse_risk_level(doc.get("risk_level"))
+            travel_mode_val = safe_parse_travel_mode(doc.get("travel_mode"))
+
+            results.append(
+                PoliceJourneyCardResponse(
+                    journey_id=jid_str,
+                    civilian_id=short_id,
+                    civilian_name=civilian_name,
+                    travel_mode=travel_mode_val,
+                    start_location_name=doc.get("start_location_name") or "Start Location",
+                    destination_name=doc.get("destination_name") or "Destination",
+                    start_location=start_loc,
+                    current_location=current_loc,
+                    destination=dest_loc,
+                    route=route_obj,
+                    status=status_val,
+                    risk_level=risk_level_val,
+                    risk_score=float(doc.get("risk_score", 3.2)),
+                    started_at=started_at,
+                    elapsed_minutes=elapsed_minutes,
+                    expected_duration_minutes=int(doc.get("expected_duration_minutes", 60)),
+                    message=doc.get("message")
+                )
+            )
+
+        return results
 
 police_service = PoliceService()

@@ -4,6 +4,8 @@ import 'assignments/police_assignments_screen.dart';
 import 'journeys/police_journeys_screen.dart';
 import 'profile/police_profile_screen.dart';
 
+import '../../core/constants/app_colors.dart';
+
 class PoliceMainScreen extends StatefulWidget {
   final int initialIndex;
 
@@ -62,12 +64,12 @@ class _PoliceMainScreenState extends State<PoliceMainScreen> {
             },
             backgroundColor: Colors.white,
             elevation: 0,
-            selectedItemColor: const Color(0xFF0D7A48), // Police green theme
+            selectedItemColor: AppColors.policePrimary, // Police safety blue
             unselectedItemColor: const Color(0xFF64748B), // Slate gray inactive
             selectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 12,
-              color: Color(0xFF0D7A48),
+              color: AppColors.policePrimary,
             ),
             unselectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w500,

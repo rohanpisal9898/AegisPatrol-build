@@ -35,7 +35,7 @@ class CivilianHomeController extends ChangeNotifier {
   TravelMode _selectedTravelMode = TravelMode.walk;
   TravelMode get selectedTravelMode => _selectedTravelMode;
 
-  int _selectedDurationMinutes = 30;
+  int _selectedDurationMinutes = 60;
   int get selectedDurationMinutes => _selectedDurationMinutes;
 
   String _destinationText = '';
@@ -92,6 +92,54 @@ class CivilianHomeController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     fetchCurrentLocation();
+  }
+
+  /// Check backend for existing active journey and restore state after login/refresh
+  Future<void> checkAndRestoreActiveJourney({required String token}) async {
+    if (token.isEmpty || _isDemoMode) return;
+    _isLoading = true;
+    notifyListeners();
+
+    final response = await _journeyService.getActiveJourney(token: token);
+    _isLoading = false;
+
+    if (response.success && response.data != null) {
+      final journey = response.data!;
+      _activeJourney = journey;
+      _journeyState = journey.status;
+      _selectedTravelMode = journey.travelMode;
+      _selectedDurationMinutes = journey.expectedDurationMinutes;
+      _currentRiskScore = journey.riskScore;
+      _currentRiskLevel = journey.riskLevel;
+      _statusMessage = journey.message ?? 'Monitoring your journey in real-time.';
+      _distanceKm = journey.distanceKm > 0 ? journey.distanceKm : 1.5;
+
+      final now = DateTime.now();
+      final startedAt = journey.startedAt ?? now;
+      final elapsedMins = now.difference(startedAt).inMinutes;
+      final remainingMins = (journey.expectedDurationMinutes - elapsedMins).clamp(0, journey.expectedDurationMinutes);
+      _timeRemainingMinutes = remainingMins;
+
+      final arrivalTime = startedAt.add(Duration(minutes: journey.expectedDurationMinutes));
+      _eta = DateFormat('h:mm a').format(arrivalTime);
+
+      if (journey.route != null && journey.route!.points.isNotEmpty) {
+        _routePoints = journey.route!.points;
+      } else if (journey.startLocation != null && journey.destination != null) {
+        _routePoints = [journey.startLocation!.toLatLng(), journey.destination!.toLatLng()];
+      } else if (journey.currentLocation != null) {
+        _routePoints = [journey.currentLocation!.toLatLng()];
+      }
+      if (journey.currentLocation != null) {
+        _currentPosition = journey.currentLocation!.toLatLng();
+      }
+    } else {
+      if (_journeyState != JourneyStatus.planning) {
+        _journeyState = JourneyStatus.notStarted;
+        _activeJourney = null;
+      }
+    }
+    notifyListeners();
   }
 
   void cancelPlanning() {

@@ -17,6 +17,43 @@ class JourneyService {
         'Authorization': 'Bearer $token',
       };
 
+  /// Get current active journey for authenticated civilian (if any)
+  Future<ApiResponse<JourneyModel>> getActiveJourney({
+    required String token,
+  }) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('${ApiEndpoints.journeys}/active'),
+        headers: _headers(token),
+      );
+
+      if (response.statusCode == 200) {
+        final bodyText = response.body.trim();
+        if (bodyText.isEmpty || bodyText == 'null') {
+          return ApiResponse(success: true, data: null);
+        }
+        final data = jsonDecode(bodyText);
+        if (data == null) {
+          return ApiResponse(success: true, data: null);
+        }
+        return ApiResponse(
+          success: true,
+          data: JourneyModel.fromJson(data),
+        );
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'No active journey found',
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        success: false,
+        message: 'Network connection failed: $e',
+      );
+    }
+  }
+
   /// Start a new journey
   Future<ApiResponse<JourneyModel>> startJourney({
     required String token,

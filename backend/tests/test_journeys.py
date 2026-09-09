@@ -162,3 +162,67 @@ async def test_nearby_police_and_sos_alerts():
         # Resolve Alert
         resolve_res = await ac.post(f"/alerts/{alert_id}/resolve", json={"note": "False alarm"}, headers=headers)
         assert resolve_res.status_code == 200
+
+@pytest.mark.asyncio
+async def test_police_jurisdiction_active_journeys():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Signup & Login Thane Civilian
+        await ac.post("/auth/civilian/signup", json={
+            "name": "Pooja Patil",
+            "phone": "9898989898",
+            "password": "password123",
+            "district": "Thane"
+        })
+        civ_login = await ac.post("/auth/civilian/login", json={"phone": "9898989898", "password": "password123"})
+        civ_token = civ_login.json()["access_token"]
+
+        # 2. Civilian Starts Journey
+        start_res = await ac.post(
+            "/journeys/start",
+            json={
+                "travel_mode": "walk",
+                "start_location_name": "Thane West",
+                "destination_name": "Mumbai Fort",
+                "expected_duration_minutes": 60
+            },
+            headers={"Authorization": f"Bearer {civ_token}"}
+        )
+        assert start_res.status_code == 200
+        journey_data = start_res.json()
+        assert journey_data["status"] == "active"
+
+        # 3. Thane Police Officer Login
+        await ac.post("/auth/police/signup", json={
+            "name": "Inspector Shinde",
+            "phone": "9797979797",
+            "password": "password123",
+            "district": "Thane"
+        })
+        thane_police_login = await ac.post("/auth/police/login", json={"phone": "9797979797", "password": "password123"})
+        thane_token = thane_police_login.json()["access_token"]
+
+        # 4. Thane Police Fetches Journeys -> Should see Pooia Patil's journey
+        thane_res = await ac.get("/police/journeys", headers={"Authorization": f"Bearer {thane_token}"})
+        assert thane_res.status_code == 200
+        thane_journeys = thane_res.json()
+        assert len(thane_journeys) == 1
+        assert thane_journeys[0]["civilian_name"] == "Pooja Patil"
+        assert thane_journeys[0]["start_location_name"] == "Thane West"
+
+        # 5. Pune Police Officer Login
+        await ac.post("/auth/police/signup", json={
+            "name": "Inspector Kulkarni",
+            "phone": "9696969696",
+            "password": "password123",
+            "district": "Pune"
+        })
+        pune_police_login = await ac.post("/auth/police/login", json={"phone": "9696969696", "password": "password123"})
+        pune_token = pune_police_login.json()["access_token"]
+
+        # 6. Pune Police Fetches Journeys -> Should see ZERO journeys ([])
+        pune_res = await ac.get("/police/journeys", headers={"Authorization": f"Bearer {pune_token}"})
+        assert pune_res.status_code == 200
+        pune_journeys = pune_res.json()
+        assert len(pune_journeys) == 0
+
