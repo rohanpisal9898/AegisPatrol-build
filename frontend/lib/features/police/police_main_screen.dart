@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/patrol_intelligence_provider.dart';
 import 'home/police_home_screen.dart';
 import 'assignments/police_assignments_screen.dart';
+import 'alerts/police_alerts_screen.dart';
 import 'journeys/police_journeys_screen.dart';
 import 'profile/police_profile_screen.dart';
-
-import '../../core/constants/app_colors.dart';
 
 class PoliceMainScreen extends StatefulWidget {
   final int initialIndex;
@@ -24,6 +25,7 @@ class _PoliceMainScreenState extends State<PoliceMainScreen> {
   final List<Widget> _screens = const [
     PoliceHomeScreen(),
     PoliceAssignmentsScreen(),
+    PoliceAlertsScreen(),
     PoliceJourneysScreen(),
     PoliceProfileScreen(),
   ];
@@ -36,6 +38,16 @@ class _PoliceMainScreenState extends State<PoliceMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<PatrolIntelligenceProvider>(context);
+    final isDarkMode = provider.isDarkMode;
+
+    final barBg = isDarkMode ? const Color(0xFF071A2E) : Colors.white;
+    final borderTop = isDarkMode ? const Color(0xFF1E3A5F) : const Color(0xFFF1F5F9);
+    const selectedColor = Color(0xFF147DF5);
+    final unselectedColor = isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
+    final activeAlertsCount = provider.alerts.where((a) => a.status == 'Active').length;
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -43,13 +55,13 @@ class _PoliceMainScreenState extends State<PoliceMainScreen> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: const Border(
-            top: BorderSide(color: Color(0xFFF1F5F9), width: 1.2),
+          color: barBg,
+          border: Border(
+            top: BorderSide(color: borderTop, width: 1.2),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withValues(alpha: isDarkMode ? 0.3 : 0.04),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -62,38 +74,79 @@ class _PoliceMainScreenState extends State<PoliceMainScreen> {
             onTap: (index) {
               setState(() => _currentIndex = index);
             },
-            backgroundColor: Colors.white,
+            backgroundColor: barBg,
             elevation: 0,
-            selectedItemColor: AppColors.policePrimary, // Police safety blue
-            unselectedItemColor: const Color(0xFF64748B), // Slate gray inactive
+            selectedItemColor: selectedColor,
+            unselectedItemColor: unselectedColor,
             selectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: AppColors.policePrimary,
+              fontWeight: FontWeight.w800,
+              fontSize: 11.5,
+              color: selectedColor,
             ),
-            unselectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 12,
-              color: Color(0xFF64748B),
+            unselectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+              color: unselectedColor,
             ),
             type: BottomNavigationBarType.fixed,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                activeIcon: Icon(Icons.home_rounded),
+            items: [
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.shield_outlined),
+                activeIcon: Icon(Icons.shield_rounded),
                 label: 'Home',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.assignment_outlined),
                 activeIcon: Icon(Icons.assignment_rounded),
                 label: 'Assignments',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.navigation_outlined),
-                activeIcon: Icon(Icons.navigation_rounded),
-                label: 'Journeys',
+                icon: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.notifications_none_rounded),
+                    if (activeAlertsCount > 0)
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEA3F4F),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                activeIcon: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.notifications_rounded),
+                    if (activeAlertsCount > 0)
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEA3F4F),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                label: 'Alerts',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.directions_walk_rounded),
+                activeIcon: Icon(Icons.transfer_within_a_station_rounded),
+                label: 'Safe Journeys',
+              ),
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline_rounded),
                 activeIcon: Icon(Icons.person_rounded),
                 label: 'Profile',

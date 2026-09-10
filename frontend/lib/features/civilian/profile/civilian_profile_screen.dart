@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/auth_provider.dart';
 import '../../role_selection/role_selection_screen.dart';
+import '../../role_selection/app_mode_selection_screen.dart';
+import '../../police/police_main_screen.dart';
+import '../../../core/storage/secure_storage_service.dart';
 import 'widgets/profile_hero_card.dart';
 import 'widgets/personal_info_card.dart';
 
@@ -138,6 +141,11 @@ class CivilianProfileScreen extends StatelessWidget {
                           district: district,
                         ),
 
+                        const SizedBox(height: 16),
+
+                        // APP MODE Management Section
+                        _buildAppModeCard(context),
+
                         const SizedBox(height: 20),
 
                         // Full-width Logout Button
@@ -150,6 +158,94 @@ class CivilianProfileScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAppModeCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'APP MODE',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textSecondary,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD1FAE5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Citizen',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF059669),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    side: const BorderSide(color: Color(0xFF147DF5)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  onPressed: () async {
+                    await SecureStorageService.saveAppMode('patrol');
+                    if (!context.mounted) return;
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const PoliceMainScreen()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Switch App Mode', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF147DF5))),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    side: const BorderSide(color: AppColors.textSecondary),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  onPressed: () async {
+                    await SecureStorageService.clearAppMode();
+                    if (!context.mounted) return;
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const AppModeSelectionScreen()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Reset App Onboarding', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

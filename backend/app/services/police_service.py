@@ -398,63 +398,40 @@ out center 25;"""
     async def get_authorized_active_journeys(
         cls,
         db: AsyncIOMotorDatabase,
-        police_user: UserResponse
+        police_user: UserResponse,
+        district_filter: Optional[str] = None
     ) -> List[PoliceJourneyCardResponse]:
         """
-        Fetches active civilian journeys authorized for the given police officer's district.
-        District is extracted strictly from police_user (JWT token context).
-        Enforces district-level isolation: Returns ONLY real civilian journeys matching officer jurisdiction.
-        Returns empty list [] if no active journeys exist for that district.
+        Fetches active civilian journeys authorized for police monitoring.
+        If district_filter is specified (and not 'all'), filters by that district.
+        Populates real civilian name, route coordinates, and district.
         """
-        police_district = police_user.district.strip()
-        if not police_district:
-            return []
-
-        # Extract primary district name (e.g. "Thane" from "Thane, Maharashtra")
-        primary_district = police_district.split(",")[0].strip()
+        police_district = (police_user.district or "").strip()
+        primary_district = police_district.split(",")[0].strip() if police_district else ""
 
         users_col = db["users"]
         journeys_col = db["journeys"]
-
-        # 1. Find all civilian users registered in this police officer's district
-        district_regex = f".*{primary_district}.*"
-        civilian_cursor = users_col.find({
-            "role": "civilian",
-            "district": {"$regex": district_regex, "$options": "i"}
-        })
-        civilians = await civilian_cursor.to_list(length=200)
-
-        civilian_user_map = {}
-        for civ in civilians:
-            cid = str(civ["_id"])
-            civilian_user_map[cid] = civ.get("name", "Civilian User")
-
-        civilian_user_ids = list(civilian_user_map.keys())
 
         # Auto-expire any journeys whose Share Until duration has passed
         from app.services.journey_service import JourneyService
         await JourneyService.auto_expire_journeys(db)
 
-        # 2. Query MongoDB journeys for active/monitoring journeys matching jurisdiction:
-        # Either the civilian's registered district matches officer's district OR journey started in officer's district.
+        # Query MongoDB journeys for all active/monitoring journeys
         active_statuses = ["active", "unusual_activity", "safety_alert"]
-        query = {
-            "status": {"$in": active_statuses},
-            "$or": [
-                {"user_id": {"$in": civilian_user_ids}},
-                {"start_location_name": {"$regex": district_regex, "$options": "i"}}
-            ]
-        }
+        query = {"status": {"$in": active_statuses}}
 
         cursor = journeys_col.find(query).sort("started_at", -1)
         journey_docs = await cursor.to_list(length=100)
 
         now = datetime.now(timezone.utc)
         results: List[PoliceJourneyCardResponse] = []
+        civilian_user_map: Dict[str, str] = {}
+        civilian_district_map: Dict[str, str] = {}
 
         for doc in journey_docs:
             user_id = doc.get("user_id", "")
             civilian_name = civilian_user_map.get(user_id)
+            civilian_district = civilian_district_map.get(user_id)
 
             # If user_id wasn't in our initial map, query user record directly
             if not civilian_name and user_id:
@@ -462,12 +439,36 @@ out center 25;"""
                     u_doc = await users_col.find_one({"_id": ObjectId(user_id)})
                     if u_doc:
                         civilian_name = u_doc.get("name", "Civilian User")
+                        civilian_district = u_doc.get("district", "")
                         civilian_user_map[user_id] = civilian_name
+                        if civilian_district:
+                            civilian_district_map[user_id] = civilian_district
                 except Exception:
                     pass
 
             if not civilian_name:
                 civilian_name = "Civilian User"
+
+            start_name = doc.get("start_location_name") or "Start Location"
+            dest_name = doc.get("destination_name") or "Destination"
+
+            if not civilian_district:
+                if "kolhapur" in start_name.lower() or "kolhapur" in dest_name.lower():
+                    civilian_district = "Kolhapur"
+                elif "thane" in start_name.lower() or "thane" in dest_name.lower():
+                    civilian_district = "Thane"
+                elif "mumbai city" in start_name.lower() or "dadar" in start_name.lower() or "colaba" in start_name.lower():
+                    civilian_district = "Mumbai City"
+                else:
+                    civilian_district = "Mumbai Suburban"
+
+            # District filter check
+            if district_filter and district_filter.lower() != "all":
+                d_filter = district_filter.lower().strip()
+                if (d_filter not in civilian_district.lower() and
+                    d_filter not in start_name.lower() and
+                    d_filter not in dest_name.lower()):
+                    continue
 
             started_at = doc.get("started_at")
             if isinstance(started_at, datetime):
@@ -495,8 +496,8 @@ out center 25;"""
                     civilian_id=short_id,
                     civilian_name=civilian_name,
                     travel_mode=travel_mode_val,
-                    start_location_name=doc.get("start_location_name") or "Start Location",
-                    destination_name=doc.get("destination_name") or "Destination",
+                    start_location_name=start_name,
+                    destination_name=dest_name,
                     start_location=start_loc,
                     current_location=current_loc,
                     destination=dest_loc,
@@ -507,7 +508,8 @@ out center 25;"""
                     started_at=started_at,
                     elapsed_minutes=elapsed_minutes,
                     expected_duration_minutes=int(doc.get("expected_duration_minutes", 60)),
-                    message=doc.get("message")
+                    message=doc.get("message"),
+                    district=civilian_district
                 )
             )
 

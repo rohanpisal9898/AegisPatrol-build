@@ -131,4 +131,37 @@ class AlertService:
             logger.error("Error marking user safe for journey %s: %s", journey_id, e)
             return False
 
+    @classmethod
+    async def list_alerts(
+
+        cls,
+        db: AsyncIOMotorDatabase,
+        limit: int = 50
+    ) -> List[AlertResponse]:
+        """Fetch latest alerts from the alerts collection."""
+        collection = db["alerts"]
+        cursor = collection.find({}).sort("created_at", -1).limit(limit)
+        docs = await cursor.to_list(length=limit)
+        results = []
+        for doc in docs:
+            results.append(
+                AlertResponse(
+                    id=str(doc["_id"]),
+                    user_id=doc.get("user_id", ""),
+                    journey_id=doc.get("journey_id"),
+                    district=doc.get("district"),
+                    alert_type=doc.get("alert_type"),
+                    status=doc.get("status"),
+                    lat=doc.get("lat"),
+                    lon=doc.get("lon"),
+                    h3_cell=doc.get("h3_cell"),
+                    risk_score=doc.get("risk_score"),
+                    message=doc.get("message"),
+                    created_at=doc.get("created_at"),
+                    resolved_at=doc.get("resolved_at")
+                )
+            )
+        return results
+
 alert_service = AlertService()
+

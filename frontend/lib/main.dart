@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/patrol_intelligence_provider.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/role_selection/role_selection_screen.dart';
 import 'features/auth/civilian_auth/civilian_login_screen.dart';
@@ -24,6 +25,7 @@ class AegisPatrolApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => PatrolIntelligenceProvider()),
       ],
       child: MaterialApp(
         title: 'AegisPatrol',

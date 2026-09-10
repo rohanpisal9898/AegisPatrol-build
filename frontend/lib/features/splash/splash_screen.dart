@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../role_selection/role_selection_screen.dart';
+import '../role_selection/app_mode_selection_screen.dart';
 import '../civilian/civilian_main_screen.dart';
 import '../police/police_main_screen.dart';
+import '../../core/storage/secure_storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,6 +27,26 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
 
+    final onboardingDone = await SecureStorageService.isOnboardingCompleted();
+    final appMode = await SecureStorageService.getAppMode();
+
+    if (!mounted) return;
+
+    if (!onboardingDone || appMode == null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const AppModeSelectionScreen()),
+      );
+      return;
+    }
+
+    if (appMode == 'patrol') {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const PoliceMainScreen()),
+      );
+      return;
+    }
+
+    // Default to civilian mode
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final hasSession = await authProvider.checkSession();
 

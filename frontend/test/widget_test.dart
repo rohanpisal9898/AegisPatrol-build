@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:aegispatrol/providers/auth_provider.dart';
+import 'package:aegispatrol/providers/patrol_intelligence_provider.dart';
 import 'package:aegispatrol/features/role_selection/role_selection_screen.dart';
+import 'package:aegispatrol/features/role_selection/app_mode_selection_screen.dart';
 import 'package:aegispatrol/features/civilian/civilian_main_screen.dart';
 import 'package:aegispatrol/features/police/police_main_screen.dart';
 import 'package:aegispatrol/features/auth/civilian_auth/civilian_login_screen.dart';
@@ -12,6 +14,7 @@ Widget createTestApp(Widget child) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ChangeNotifierProvider(create: (_) => PatrolIntelligenceProvider()),
     ],
     child: MaterialApp(
       home: child,
@@ -27,6 +30,15 @@ void main() {
     expect(find.text('Choose your role'), findsOneWidget);
     expect(find.text('CIVILIAN'), findsOneWidget);
     expect(find.text('POLICE'), findsOneWidget);
+  });
+
+  testWidgets('AppModeSelectionScreen renders Citizen and Police Patrol options', (WidgetTester tester) async {
+    await tester.pumpWidget(createTestApp(const AppModeSelectionScreen()));
+
+    expect(find.text('NIRBHAY • GUARDIAN'), findsOneWidget);
+    expect(find.text('How are you using the app?'), findsOneWidget);
+    expect(find.text('POLICE PATROL'), findsOneWidget);
+    expect(find.text('CITIZEN'), findsOneWidget);
   });
 
   testWidgets('CivilianLoginScreen renders civilian login form', (WidgetTester tester) async {
@@ -77,6 +89,11 @@ void main() {
     expect(find.text('District'), findsOneWidget);
     expect(find.text('Mumbai Suburban, Maharashtra'), findsOneWidget);
 
+    // Verify App Mode controls
+    expect(find.text('APP MODE'), findsOneWidget);
+    expect(find.text('Switch App Mode'), findsOneWidget);
+    expect(find.text('Reset App Onboarding'), findsOneWidget);
+
     // Verify Logout Button
     expect(find.text('Logout'), findsOneWidget);
     expect(find.byIcon(Icons.logout_rounded), findsOneWidget);
@@ -87,21 +104,23 @@ void main() {
     expect(find.text('Alerts'), findsNothing);
   });
 
-  testWidgets('PoliceMainScreen renders exactly 4 navigation tabs: Home, Assignments, Alerts, Profile', (WidgetTester tester) async {
+  testWidgets('PoliceMainScreen renders exactly 5 navigation tabs: Home, Assignments, Alerts, Safe Journeys, Profile', (WidgetTester tester) async {
     await tester.pumpWidget(createTestApp(const PoliceMainScreen()));
 
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Assignments'), findsOneWidget);
     expect(find.text('Alerts'), findsOneWidget);
+    expect(find.text('Safe Journeys'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('Unit Home'), findsOneWidget);
-    expect(find.text('Your Next Assignment'), findsOneWidget);
-    expect(find.text('Go to Area'), findsOneWidget);
+    expect(find.text('GUARDIAN PATROL'), findsOneWidget);
+    expect(find.text('CURRENT PRIORITY'), findsOneWidget);
+    expect(find.text('Andheri East'), findsOneWidget);
   });
 
   testWidgets('PoliceProfileScreen renders police profile UI matching reference screenshot', (WidgetTester tester) async {
-    await tester.pumpWidget(createTestApp(const PoliceMainScreen(initialIndex: 3)));
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(createTestApp(const PoliceMainScreen(initialIndex: 4)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     // Verify Title Header
     expect(find.text('Profile'), findsAtLeastNWidgets(1));
@@ -119,6 +138,11 @@ void main() {
     expect(find.text('District'), findsOneWidget);
     expect(find.text('Thane, Maharashtra'), findsOneWidget);
 
+    // Verify App Mode controls
+    expect(find.text('APP MODE'), findsOneWidget);
+    expect(find.text('Switch App Mode'), findsOneWidget);
+    expect(find.text('Reset App Onboarding'), findsOneWidget);
+
     // Verify Logout Button
     expect(find.text('Logout'), findsOneWidget);
     expect(find.byIcon(Icons.logout_rounded), findsOneWidget);
@@ -127,5 +151,6 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Assignments'), findsOneWidget);
     expect(find.text('Alerts'), findsOneWidget);
+    expect(find.text('Safe Journeys'), findsOneWidget);
   });
 }

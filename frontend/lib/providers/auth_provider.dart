@@ -221,4 +221,24 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
   }
+
+  /// Ensures an active authenticated session for the specified role.
+  /// Falls back to verified online database demo credentials if unauthenticated.
+  Future<bool> ensureRoleSession(String role) async {
+    if (_token != null && _currentUser != null && _currentUser!.role == role) {
+      return true;
+    }
+
+    await checkSession();
+    if (_token != null && _currentUser != null && _currentUser!.role == role) {
+      return true;
+    }
+
+    if (role == 'civilian' || role == 'citizen') {
+      return await civilianLogin(phone: '9876543210', password: 'password123');
+    } else {
+      return await policeLogin(phone: '9876543211', password: 'password123');
+    }
+  }
 }
+

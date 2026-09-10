@@ -17,8 +17,11 @@ class GeminiService:
             try:
                 import google.generativeai as genai
                 genai.configure(api_key=self.api_key)
-                self.model = genai.GenerativeModel("gemini-1.5-flash")
-                logger.info("Gemini AI service configured successfully with model 'gemini-1.5-flash'.")
+                try:
+                    self.model = genai.GenerativeModel("gemini-2.5-flash")
+                except Exception:
+                    self.model = genai.GenerativeModel("gemini-1.5-flash")
+                logger.info("Gemini AI service configured successfully.")
             except Exception as e:
                 logger.warning("Could not initialize google.generativeai: %s", e)
                 self.model = None

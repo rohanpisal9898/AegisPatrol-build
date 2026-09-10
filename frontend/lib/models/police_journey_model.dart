@@ -19,6 +19,7 @@ class PoliceJourneyModel {
   final int elapsedMinutes;
   final int expectedDurationMinutes;
   final String? message;
+  final String? district;
 
   PoliceJourneyModel({
     required this.journeyId,
@@ -38,6 +39,7 @@ class PoliceJourneyModel {
     this.elapsedMinutes = 0,
     this.expectedDurationMinutes = 60,
     this.message,
+    this.district,
   });
 
   double? get startLat => startLocation?.latitude;
@@ -90,6 +92,7 @@ class PoliceJourneyModel {
       elapsedMinutes: (json['elapsed_minutes'] as num?)?.toInt() ?? 0,
       expectedDurationMinutes: (json['expected_duration_minutes'] as num?)?.toInt() ?? 60,
       message: json['message'],
+      district: json['district'] ?? (json['start_location_name']?.toString().contains('Kolhapur') == true ? 'Kolhapur' : 'Mumbai Suburban'),
     );
   }
 }

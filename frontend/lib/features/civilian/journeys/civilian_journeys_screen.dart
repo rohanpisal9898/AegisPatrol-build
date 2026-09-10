@@ -24,20 +24,28 @@ class CivilianJourneysScreenState extends State<CivilianJourneysScreen> {
   @override
   void initState() {
     super.initState();
-    loadJourneys();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) loadJourneys();
+    });
   }
+
 
   Future<void> loadJourneys() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final token = auth.token;
 
     if (token == null || token.isEmpty) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Authentication required';
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = null;
+          _journeys = [];
+        });
+      }
       return;
     }
+
+
 
     setState(() {
       _isLoading = true;

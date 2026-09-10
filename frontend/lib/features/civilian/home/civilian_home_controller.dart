@@ -24,9 +24,10 @@ class CivilianHomeController extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  // Location State
-  LatLng? _currentPosition;
+  // Location State (defaults to Mumbai central base)
+  LatLng? _currentPosition = const LatLng(19.0760, 72.8777);
   LatLng? get currentPosition => _currentPosition;
+
 
   LocationPermissionState _locationPermissionState = LocationPermissionState.granted;
   LocationPermissionState get locationPermissionState => _locationPermissionState;

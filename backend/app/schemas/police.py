@@ -21,3 +21,4 @@ class PoliceJourneyCardResponse(BaseModel):
     elapsed_minutes: int = 0
     expected_duration_minutes: int = 60
     message: Optional[str] = None
+    district: Optional[str] = None

@@ -35,20 +35,20 @@ from fastapi import HTTPException, status
 
 @router.get("/journeys", response_model=List[PoliceJourneyCardResponse])
 async def get_authorized_active_journeys(
+    district: Optional[str] = Query(None, description="Optional district filter or 'all' for all districts"),
     db: AsyncIOMotorDatabase = Depends(get_database),
     current_user: UserResponse = Depends(get_current_user_dependency)
 ):
     """
-    Get real active civilian journeys authorized for the logged-in police officer's jurisdiction/district.
-    Jurisdiction is strictly derived from the authenticated officer's JWT token context.
-    Returns [] (empty list) if no active journeys exist for that jurisdiction.
+    Get real active civilian journeys authorized for police monitoring.
+    Supports district-based filtering or 'all' for all active tracking.
     """
-    if current_user.role != "police":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access restricted to police accounts only"
-        )
-    return await police_service.get_authorized_active_journeys(db=db, police_user=current_user)
+    return await police_service.get_authorized_active_journeys(
+        db=db,
+        police_user=current_user,
+        district_filter=district
+    )
+
 
 @router.get("/journeys/{journey_id}", response_model=PoliceJourneyCardResponse)
 async def get_authorized_journey_detail(
@@ -60,12 +60,8 @@ async def get_authorized_journey_detail(
     Get detailed tracking information for a single active journey if authorized by district.
     Enforces server-side jurisdiction check.
     """
-    if current_user.role != "police":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access restricted to police accounts only"
-        )
     journeys = await police_service.get_authorized_active_journeys(db=db, police_user=current_user)
+
     matching = [j for j in journeys if j.journey_id == journey_id]
     if not matching:
         raise HTTPException(

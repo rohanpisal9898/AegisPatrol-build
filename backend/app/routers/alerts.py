@@ -1,4 +1,5 @@
 import logging
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.mongodb import get_database
@@ -64,3 +65,15 @@ async def mark_journey_safe(
         journey_id=journey_id
     )
     return {"success": success, "message": "Journey marked safe and returned to active monitoring"}
+ 
+@router.get("", response_model=List[AlertResponse])
+async def list_alerts(
+    limit: int = 50,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: UserResponse = Depends(get_current_user_dependency)
+):
+    """
+    Get latest safety and SOS emergency alerts from MongoDB.
+    """
+    return await alert_service.list_alerts(db=db, limit=limit)
+

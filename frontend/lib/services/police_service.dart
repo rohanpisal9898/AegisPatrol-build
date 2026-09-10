@@ -10,13 +10,18 @@ class PoliceService {
 
   PoliceService({http.Client? client}) : _client = client ?? http.Client();
 
-  /// Fetch active civilian journeys authorized for the logged-in police officer's district
+  /// Fetch active civilian journeys authorized for police monitoring
   Future<ApiResponse<List<PoliceJourneyModel>>> getPoliceJourneys({
     required String token,
+    String? district,
   }) async {
     try {
+      String url = ApiEndpoints.policeJourneys;
+      if (district != null && district.isNotEmpty) {
+        url += '?district=${Uri.encodeComponent(district)}';
+      }
       final response = await _client.get(
-        Uri.parse(ApiEndpoints.policeJourneys),
+        Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

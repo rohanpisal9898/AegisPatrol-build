@@ -232,9 +232,16 @@ class JourneyService {
           data: items,
         );
       } else {
+        String msg = 'No journeys found';
+        try {
+          final data = jsonDecode(response.body);
+          if (data is Map && (data['detail'] != null || data['message'] != null)) {
+            msg = data['detail'] ?? data['message'];
+          }
+        } catch (_) {}
         return ApiResponse(
           success: false,
-          message: 'Failed to retrieve journeys',
+          message: msg,
           data: [],
         );
       }
@@ -246,4 +253,5 @@ class JourneyService {
       );
     }
   }
+
 }
