@@ -36,6 +36,8 @@ class ApiEndpoints {
 
   // Safety & SOS Alerts
   static const String alerts = '$baseUrl/alerts';
+  static String getAlert(String alertId) => '$baseUrl/alerts/$alertId';
+  static String alertLocation(String alertId) => '$baseUrl/alerts/$alertId/location';
   static String resolveAlert(String alertId) => '$baseUrl/alerts/$alertId/resolve';
   static String markJourneySafe(String journeyId) => '$baseUrl/alerts/journey/$journeyId/safe';
 }

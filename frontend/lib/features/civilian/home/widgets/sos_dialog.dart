@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../services/alert_service.dart';
 import '../../../../services/location_service.dart';
+import '../../../../services/sos_tracking_manager.dart';
 
 class SosDialog extends StatefulWidget {
   final String token;
@@ -75,7 +76,13 @@ class _SosDialogState extends State<SosDialog> {
     );
 
     if (mounted) {
-      if (res.success) {
+      if (res.success && res.data != null) {
+        SosTrackingManager().startTracking(
+          token: widget.token,
+          alertId: res.data!.id,
+          message: 'Civilian triggered instant SOS emergency button',
+          initialPos: LatLng(lat, lon),
+        );
         setState(() {
           _isSending = false;
           _sentSuccess = true;

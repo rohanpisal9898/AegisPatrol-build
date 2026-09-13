@@ -65,6 +65,76 @@ class AlertService {
     }
   }
 
+  /// Update live continuous GPS location for an active alert
+  Future<ApiResponse<Map<String, dynamic>>> updateAlertLocation({
+    required String token,
+    required String alertId,
+    required double lat,
+    required double lon,
+    String? h3Cell,
+  }) async {
+    try {
+      final response = await _client.post(
+        Uri.parse(ApiEndpoints.alertLocation(alertId)),
+        headers: _headers(token),
+        body: jsonEncode({
+          'lat': lat,
+          'lon': lon,
+          if (h3Cell != null) 'h3_cell': h3Cell,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return ApiResponse(
+          success: true,
+          data: data,
+        );
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Failed to update alert location',
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        success: false,
+        message: 'Network error: $e',
+      );
+    }
+  }
+
+  /// Fetch single alert details
+  Future<ApiResponse<AlertModel>> getAlertById({
+    required String token,
+    required String alertId,
+  }) async {
+    try {
+      final response = await _client.get(
+        Uri.parse(ApiEndpoints.getAlert(alertId)),
+        headers: _headers(token),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return ApiResponse(
+          success: true,
+          data: AlertModel.fromJson(data),
+        );
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Alert not found',
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        success: false,
+        message: 'Network error: $e',
+      );
+    }
+  }
+
   /// Resolve alert
   Future<ApiResponse<bool>> resolveAlert({
     required String token,

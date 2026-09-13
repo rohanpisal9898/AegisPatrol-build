@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.mongodb import get_database
 from app.routers.users import get_current_user_dependency
 from app.schemas.user import UserResponse
-from app.models.alert import CreateAlertRequest, ResolveAlertRequest, AlertResponse
+from app.models.alert import CreateAlertRequest, ResolveAlertRequest, UpdateAlertLocationRequest, AlertResponse
 from app.services.alert_service import alert_service
 
 logger = logging.getLogger("aegispatrol.routers.alerts")
@@ -66,6 +66,44 @@ async def mark_journey_safe(
     )
     return {"success": success, "message": "Journey marked safe and returned to active monitoring"}
  
+@router.post("/{alert_id}/location")
+async def update_alert_location(
+    alert_id: str,
+    request: UpdateAlertLocationRequest,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: UserResponse = Depends(get_current_user_dependency)
+):
+    """
+    Update continuous GPS location coordinates for an active alert.
+    Returns whether tracking is active or if alert was resolved.
+    """
+    result = await alert_service.update_alert_location(
+        db=db,
+        alert_id=alert_id,
+        user_id=current_user.id,
+        lat=request.lat,
+        lon=request.lon,
+        h3_cell=request.h3_cell
+    )
+    return result
+
+@router.get("/{alert_id}", response_model=AlertResponse)
+async def get_alert(
+    alert_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: UserResponse = Depends(get_current_user_dependency)
+):
+    """
+    Get detailed information and live coordinates for a single alert.
+    """
+    alert = await alert_service.get_alert(db=db, alert_id=alert_id)
+    if not alert:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Alert not found"
+        )
+    return alert
+
 @router.get("", response_model=List[AlertResponse])
 async def list_alerts(
     limit: int = 50,

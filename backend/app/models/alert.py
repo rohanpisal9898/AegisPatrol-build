@@ -27,6 +27,11 @@ class ResolveAlertRequest(BaseModel):
     journey_id: Optional[str] = None
     note: Optional[str] = "User reported safe"
 
+class UpdateAlertLocationRequest(BaseModel):
+    lat: float
+    lon: float
+    h3_cell: Optional[str] = None
+
 class AlertResponse(BaseModel):
     id: str
     user_id: str

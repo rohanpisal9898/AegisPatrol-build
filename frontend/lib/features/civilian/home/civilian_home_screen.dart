@@ -11,6 +11,7 @@ import 'widgets/sos_dialog.dart';
 import 'widgets/nearby_police_sheet.dart';
 import 'widgets/helpline_sheet.dart';
 import '../../../../services/demo_simulation_service.dart';
+import '../../../../services/sos_tracking_manager.dart';
 
 class CivilianHomeScreen extends StatelessWidget {
   const CivilianHomeScreen({super.key});
@@ -68,6 +69,84 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
           children: [
             // Top App Bar
             _buildTopBar(context, userName, district),
+
+            // Live SOS Broadcasting Status Banner
+            ListenableBuilder(
+              listenable: SosTrackingManager(),
+              builder: (context, _) {
+                final sosMgr = SosTrackingManager();
+                if (!sosMgr.isSosActive) return const SizedBox.shrink();
+                return Container(
+                  margin: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.4), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.crisis_alert_rounded, color: Colors.white, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '🚨 SOS BROADCAST ACTIVE',
+                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFFDC2626)),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              sosMgr.currentPosition != null
+                                  ? 'Live GPS (${sosMgr.currentPosition!.latitude.toStringAsFixed(4)}, ${sosMgr.currentPosition!.longitude.toStringAsFixed(4)}) streaming to Police'
+                                  : 'Streaming live GPS location to Police Patrol...',
+                              style: const TextStyle(fontSize: 11, color: Color(0xFF991B1B)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF16A34A),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          minimumSize: Size.zero,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          elevation: 0,
+                        ),
+                        onPressed: () {
+                          sosMgr.stopTracking(callBackendResolve: true, note: 'Civilian marked safe');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('SOS resolved. Live tracking turned off.'),
+                              backgroundColor: Color(0xFF16A34A),
+                            ),
+                          );
+                        },
+                        child: const Text('I am Safe', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
 
             // Development / Demo Simulation Toolbar (kDebugMode only)
             if (kDebugMode) _buildDebugDemoBar(context, controller, token),

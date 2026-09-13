@@ -151,6 +151,106 @@ class AlertService:
             return False
 
     @classmethod
+    async def update_alert_location(
+        cls,
+        db: AsyncIOMotorDatabase,
+        alert_id: str,
+        user_id: str,
+        lat: float,
+        lon: float,
+        h3_cell: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Updates continuous GPS coordinates for an alert. Returns tracking state."""
+        collection = db["alerts"]
+        now = datetime.now(timezone.utc)
+        try:
+            doc = await collection.find_one({"_id": ObjectId(alert_id)})
+            if not doc:
+                return {"success": False, "status": "not_found", "is_tracking_active": False}
+            
+            status = doc.get("status", AlertStatus.ACTIVE.value)
+            if status == AlertStatus.RESOLVED.value:
+                return {
+                    "success": True,
+                    "status": "resolved",
+                    "is_tracking_active": False,
+                    "resolved_at": doc.get("resolved_at")
+                }
+            
+            await collection.update_one(
+                {"_id": ObjectId(alert_id)},
+                {"$set": {
+                    "lat": lat,
+                    "lon": lon,
+                    "h3_cell": h3_cell,
+                    "updated_at": now
+                }}
+            )
+            return {
+                "success": True,
+                "status": "active",
+                "is_tracking_active": True,
+                "lat": lat,
+                "lon": lon
+            }
+        except Exception as e:
+            logger.error("Error updating location for alert %s: %s", alert_id, e)
+            return {"success": False, "status": "error", "is_tracking_active": False}
+
+    @classmethod
+    async def get_alert(
+        cls,
+        db: AsyncIOMotorDatabase,
+        alert_id: str
+    ) -> Optional[AlertResponse]:
+        """Fetch a single alert with enriched civilian user details."""
+        collection = db["alerts"]
+        users_col = db["users"]
+        try:
+            doc = await collection.find_one({"_id": ObjectId(alert_id)})
+            if not doc:
+                return None
+            user_id = doc.get("user_id", "")
+            civ_name = doc.get("civilian_name")
+            civ_phone = doc.get("civilian_phone")
+            civ_district = doc.get("civilian_district")
+
+            if (not civ_name or not civ_phone) and user_id:
+                try:
+                    u = await users_col.find_one({"_id": ObjectId(user_id)})
+                    if u:
+                        civ_name = civ_name or u.get("name")
+                        civ_phone = civ_phone or u.get("phone")
+                        civ_district = civ_district or u.get("district")
+                except Exception:
+                    pass
+
+            loc_name = doc.get("location_name") or doc.get("district") or f"Near {round(doc.get('lat', 0.0), 4)}, {round(doc.get('lon', 0.0), 4)}"
+
+            return AlertResponse(
+                id=str(doc["_id"]),
+                user_id=user_id,
+                civilian_name=civ_name or "Civilian User",
+                civilian_phone=civ_phone,
+                civilian_district=civ_district,
+                location_name=loc_name,
+                journey_id=doc.get("journey_id"),
+                district=doc.get("district"),
+                alert_type=doc.get("alert_type"),
+                status=doc.get("status"),
+                lat=doc.get("lat", 0.0),
+                lon=doc.get("lon", 0.0),
+                h3_cell=doc.get("h3_cell"),
+                risk_score=doc.get("risk_score"),
+                message=doc.get("message"),
+                created_at=doc.get("created_at"),
+                resolved_at=doc.get("resolved_at")
+            )
+        except Exception as e:
+            logger.error("Error retrieving alert %s: %s", alert_id, e)
+            return None
+
+    @classmethod
     async def list_alerts(
         cls,
         db: AsyncIOMotorDatabase,
