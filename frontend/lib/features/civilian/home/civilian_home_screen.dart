@@ -210,21 +210,21 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
         return _buildPlanningState(context, controller, token, district);
       case JourneyStatus.active:
       case JourneyStatus.unusualActivity:
-        return _buildActiveState(context, controller, token);
+        return _buildActiveState(context, controller, token, district);
       case JourneyStatus.safetyAlert:
         return _buildSafetyAlertState(context, controller, token);
       case JourneyStatus.completed:
         return _buildCompletedState(context, controller, token);
       case JourneyStatus.notStarted:
       case JourneyStatus.cancelled:
-        return _buildNotStartedState(context, controller, token);
+        return _buildNotStartedState(context, controller, token, district);
     }
   }
 
   // ==========================================
   // 1. HOME (NOT STARTED)
   // ==========================================
-  Widget _buildNotStartedState(BuildContext context, CivilianHomeController controller, String token) {
+  Widget _buildNotStartedState(BuildContext context, CivilianHomeController controller, String token, String district) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -311,7 +311,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
         // Quick Actions Section
         _buildQuickActionsHeader(),
         const SizedBox(height: 14),
-        _buildQuickActionsGrid(context, token, null),
+        _buildQuickActionsGrid(context, token, null, controller.currentPosition, district),
 
         const SizedBox(height: 24),
 
@@ -759,7 +759,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
   // ==========================================
   // 3. HOME (JOURNEY ACTIVE)
   // ==========================================
-  Widget _buildActiveState(BuildContext context, CivilianHomeController controller, String token) {
+  Widget _buildActiveState(BuildContext context, CivilianHomeController controller, String token, String district) {
     final pos = controller.currentPosition ?? const LatLng(19.0596, 72.8368);
 
     return Column(
@@ -799,20 +799,18 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
           currentPosition: pos,
           destinationPosition: controller.destinationPosition,
           routePoints: controller.routePoints,
-          journeyStatus: JourneyStatus.active,
-          riskLevel: RiskLevel.normal,
-          height: 220,
+          journeyStatus: controller.journeyState,
+          riskLevel: controller.currentRiskLevel,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
 
-        // Stats Row (ETA, Distance, Time Left)
+        // Metrics Summary Card (ETA, Distance, Time Remaining)
         _buildStatsRow(controller),
         const SizedBox(height: 14),
 
-        // Safety Status Card
+        // Safety Status & Risk Message Card
         Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -821,27 +819,39 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
           child: Row(
             children: [
               Container(
-                width: 38,
-                height: 38,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.civilianPinkLight,
-                  borderRadius: BorderRadius.circular(10),
+                  color: controller.currentRiskLevel == RiskLevel.normal
+                      ? AppColors.civilianPinkLight
+                      : (controller.currentRiskLevel == RiskLevel.unusual ? AppColors.riskUnusualBg : AppColors.riskHighBg),
+                  shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.shield_rounded, color: AppColors.civilianPink, size: 22),
+                child: Icon(
+                  controller.currentRiskLevel == RiskLevel.normal
+                      ? Icons.shield_rounded
+                      : (controller.currentRiskLevel == RiskLevel.unusual ? Icons.warning_amber_rounded : Icons.crisis_alert_rounded),
+                  color: controller.currentRiskLevel == RiskLevel.normal
+                      ? AppColors.civilianPink
+                      : (controller.currentRiskLevel == RiskLevel.unusual ? AppColors.riskUnusual : AppColors.riskHigh),
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'You’re on a safe route',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    Text(
+                      controller.currentRiskLevel == RiskLevel.normal
+                          ? 'You’re on a safe route'
+                          : (controller.currentRiskLevel == RiskLevel.unusual ? 'Unusual activity detected' : 'Safety check triggered'),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       controller.statusMessage,
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -866,7 +876,7 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
         // Quick Actions
         _buildQuickActionsHeader(),
         const SizedBox(height: 12),
-        _buildQuickActionsGrid(context, token, controller.activeJourney?.id),
+        _buildQuickActionsGrid(context, token, controller.activeJourney?.id, controller.currentPosition, district),
       ],
     );
   }
@@ -1162,7 +1172,13 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
     );
   }
 
-  Widget _buildQuickActionsGrid(BuildContext context, String token, String? journeyId) {
+  Widget _buildQuickActionsGrid(
+    BuildContext context,
+    String token,
+    String? journeyId, [
+    LatLng? currentPos,
+    String? district,
+  ]) {
     return Row(
       children: [
         Expanded(
@@ -1173,7 +1189,13 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
             iconColor: AppColors.quickActionSosIcon,
             icon: Icons.emergency_rounded,
             onTap: () {
-              SosDialog.show(context, token: token, journeyId: journeyId);
+              SosDialog.show(
+                context,
+                token: token,
+                journeyId: journeyId,
+                currentPos: currentPos,
+                district: district,
+              );
             },
           ),
         ),

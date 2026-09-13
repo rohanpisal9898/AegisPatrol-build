@@ -220,9 +220,16 @@ async def test_police_jurisdiction_active_journeys():
         pune_police_login = await ac.post("/auth/police/login", json={"phone": "9696969696", "password": "password123"})
         pune_token = pune_police_login.json()["access_token"]
 
-        # 6. Pune Police Fetches Journeys -> Should see ZERO journeys ([])
-        pune_res = await ac.get("/police/journeys", headers={"Authorization": f"Bearer {pune_token}"})
+        # 6. Pune Police Fetches Journeys with explicit Pune filter -> Should see ZERO journeys ([])
+        pune_res = await ac.get("/police/journeys?district=Pune", headers={"Authorization": f"Bearer {pune_token}"})
         assert pune_res.status_code == 200
         pune_journeys = pune_res.json()
         assert len(pune_journeys) == 0
+
+        # 7. Pune Police Fetches All Active Journeys (no filter / district=all) -> Should see Pooja Patil's journey
+        all_res = await ac.get("/police/journeys", headers={"Authorization": f"Bearer {pune_token}"})
+        assert all_res.status_code == 200
+        all_journeys = all_res.json()
+        assert len(all_journeys) == 1
+        assert all_journeys[0]["civilian_name"] == "Pooja Patil"
 

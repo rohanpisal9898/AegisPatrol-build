@@ -113,4 +113,38 @@ class AlertService {
       );
     }
   }
+
+  /// Fetch live safety and SOS alerts
+  Future<ApiResponse<List<AlertModel>>> getAlerts({
+    required String token,
+    int limit = 50,
+  }) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('${ApiEndpoints.alerts}?limit=$limit'),
+        headers: _headers(token),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> list = jsonDecode(response.body);
+        final alerts = list.map((a) => AlertModel.fromJson(a)).toList();
+        return ApiResponse(
+          success: true,
+          data: alerts,
+        );
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Failed to retrieve alerts',
+          data: [],
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        success: false,
+        message: 'Network error retrieving alerts: $e',
+        data: [],
+      );
+    }
+  }
 }

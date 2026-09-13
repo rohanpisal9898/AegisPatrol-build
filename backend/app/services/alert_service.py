@@ -20,6 +20,21 @@ class AlertService:
         now = datetime.now(timezone.utc)
         
         target_district = request.district
+        civilian_name = "Civilian User"
+        civilian_phone = None
+        civilian_district = None
+
+        try:
+            user = await db["users"].find_one({"_id": ObjectId(user_id)})
+            if user:
+                civilian_name = user.get("name", "Civilian User")
+                civilian_phone = user.get("phone")
+                civilian_district = user.get("district")
+                if not target_district:
+                    target_district = civilian_district
+        except Exception:
+            pass
+
         if not target_district and request.journey_id:
             try:
                 journey = await db["journeys"].find_one({"_id": ObjectId(request.journey_id)})
@@ -28,16 +43,14 @@ class AlertService:
             except Exception:
                 pass
 
-        if not target_district:
-            try:
-                user = await db["users"].find_one({"_id": ObjectId(user_id)})
-                if user:
-                    target_district = user.get("district")
-            except Exception:
-                pass
+        location_name = target_district or f"Near {round(request.lat, 4)}, {round(request.lon, 4)}"
 
         doc = {
             "user_id": user_id,
+            "civilian_name": civilian_name,
+            "civilian_phone": civilian_phone,
+            "civilian_district": civilian_district,
+            "location_name": location_name,
             "journey_id": request.journey_id,
             "district": target_district,
             "alert_type": request.alert_type.value,
@@ -53,8 +66,8 @@ class AlertService:
 
         result = await collection.insert_one(doc)
         alert_id = str(result.inserted_id)
-        logger.info("Alert %s created for user %s (type=%s, destination_district=%s). Dispatched notification to police.",
-                    alert_id, user_id, request.alert_type.value, target_district)
+        logger.info("Alert %s created for user %s (name=%s, phone=%s, type=%s, district=%s). Dispatched notification to police.",
+                    alert_id, user_id, civilian_name, civilian_phone, request.alert_type.value, target_district)
 
         # If associated with a journey and it's NEED_HELP or SAFETY_ALERT, update journey status
         if request.journey_id:
@@ -70,7 +83,12 @@ class AlertService:
         return AlertResponse(
             id=alert_id,
             user_id=user_id,
+            civilian_name=civilian_name,
+            civilian_phone=civilian_phone,
+            civilian_district=civilian_district,
+            location_name=location_name,
             journey_id=request.journey_id,
+            district=target_district,
             alert_type=request.alert_type,
             status=AlertStatus.ACTIVE,
             lat=request.lat,
@@ -94,8 +112,9 @@ class AlertService:
         now = datetime.now(timezone.utc)
         
         try:
+            # Allow either user or police officer to resolve
             update_res = await collection.update_one(
-                {"_id": ObjectId(alert_id), "user_id": user_id},
+                {"_id": ObjectId(alert_id)},
                 {"$set": {"status": AlertStatus.RESOLVED.value, "resolved_at": now, "resolve_note": request.note if request else "Resolved"}}
             )
             return update_res.modified_count > 0
@@ -133,27 +152,59 @@ class AlertService:
 
     @classmethod
     async def list_alerts(
-
         cls,
         db: AsyncIOMotorDatabase,
         limit: int = 50
     ) -> List[AlertResponse]:
-        """Fetch latest alerts from the alerts collection."""
+        """Fetch latest alerts from the alerts collection with full civilian user details."""
         collection = db["alerts"]
+        users_col = db["users"]
         cursor = collection.find({}).sort("created_at", -1).limit(limit)
         docs = await cursor.to_list(length=limit)
         results = []
+        user_cache: Dict[str, Dict[str, Any]] = {}
+
         for doc in docs:
+            user_id = doc.get("user_id", "")
+            civ_name = doc.get("civilian_name")
+            civ_phone = doc.get("civilian_phone")
+            civ_district = doc.get("civilian_district")
+
+            if (not civ_name or not civ_phone) and user_id:
+                if user_id not in user_cache:
+                    try:
+                        u = await users_col.find_one({"_id": ObjectId(user_id)})
+                        if u:
+                            user_cache[user_id] = {
+                                "name": u.get("name", "Civilian User"),
+                                "phone": u.get("phone"),
+                                "district": u.get("district")
+                            }
+                        else:
+                            user_cache[user_id] = {}
+                    except Exception:
+                        user_cache[user_id] = {}
+                cached = user_cache.get(user_id, {})
+                civ_name = civ_name or cached.get("name", "Civilian User")
+                civ_phone = civ_phone or cached.get("phone")
+                civ_district = civ_district or cached.get("district")
+
+            loc_name = doc.get("location_name") or doc.get("district") or f"Near {round(doc.get('lat', 0.0), 4)}, {round(doc.get('lon', 0.0), 4)}"
+
             results.append(
                 AlertResponse(
                     id=str(doc["_id"]),
-                    user_id=doc.get("user_id", ""),
+                    user_id=user_id,
+                    civilian_name=civ_name or "Civilian User",
+                    civilian_phone=civ_phone,
+                    civilian_district=civ_district,
+                    location_name=loc_name,
                     journey_id=doc.get("journey_id"),
                     district=doc.get("district"),
                     alert_type=doc.get("alert_type"),
                     status=doc.get("status"),
-                    lat=doc.get("lat"),
-                    lon=doc.get("lon"),
+                    lat=doc.get("lat", 0.0),
+                    lon=doc.get("lon", 0.0),
                     h3_cell=doc.get("h3_cell"),
                     risk_score=doc.get("risk_score"),
                     message=doc.get("message"),

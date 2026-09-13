@@ -30,6 +30,10 @@ class ResolveAlertRequest(BaseModel):
 class AlertResponse(BaseModel):
     id: str
     user_id: str
+    civilian_name: Optional[str] = "Civilian User"
+    civilian_phone: Optional[str] = None
+    civilian_district: Optional[str] = None
+    location_name: Optional[str] = None
     journey_id: Optional[str] = None
     district: Optional[str] = None
     alert_type: AlertType

@@ -190,11 +190,11 @@ class _PoliceHomeScreenState extends State<PoliceHomeScreen> {
                       const SizedBox(width: 10),
 
                       // App Name & Subtitle
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'AEGISPATROL',
                               style: TextStyle(
                                 fontSize: 16,
@@ -203,7 +203,7 @@ class _PoliceHomeScreenState extends State<PoliceHomeScreen> {
                                 letterSpacing: 0.8,
                               ),
                             ),
-                            const Text(
+                            Text(
                               'Safer Cities. Stronger Communities.',
                               style: TextStyle(
                                 fontSize: 10.5,

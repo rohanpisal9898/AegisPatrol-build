@@ -462,10 +462,9 @@ out center 25;"""
                 else:
                     civilian_district = "Mumbai Suburban"
 
-            # District filter check (explicit filter, or officer's jurisdiction district if None)
-            target_filter = district_filter if district_filter is not None else primary_district
-            if target_filter and target_filter.lower() != "all":
-                d_filter = target_filter.lower().strip()
+            # District filter check (only filter if explicit district is provided and not 'all')
+            if district_filter and district_filter.strip().lower() != "all":
+                d_filter = district_filter.strip().lower()
                 if (d_filter not in civilian_district.lower() and
                     d_filter not in start_name.lower() and
                     d_filter not in dest_name.lower()):

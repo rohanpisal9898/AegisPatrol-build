@@ -75,6 +75,33 @@ class PatrolIntelligenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setAlerts(List<PatrolAlert> alerts) {
+    _alerts = alerts;
+    notifyListeners();
+  }
+
+  void mergeLiveAlerts(List<PatrolAlert> liveAlerts) {
+    final Map<String, PatrolAlert> alertMap = {};
+    for (final a in liveAlerts) {
+      alertMap[a.id] = a;
+    }
+    for (final a in _alerts) {
+      if (!alertMap.containsKey(a.id)) {
+        alertMap[a.id] = a;
+      }
+    }
+    final merged = alertMap.values.toList();
+    merged.sort((a, b) {
+      if (a.status == 'Active' && b.status != 'Active') return -1;
+      if (a.status != 'Active' && b.status == 'Active') return 1;
+      if (a.isCritical && !b.isCritical) return -1;
+      if (!a.isCritical && b.isCritical) return 1;
+      return 0;
+    });
+    _alerts = merged;
+    notifyListeners();
+  }
+
   // Safe Journeys List
   late List<SafeJourneyItem> _safeJourneys;
   List<SafeJourneyItem> get safeJourneys => _safeJourneys;

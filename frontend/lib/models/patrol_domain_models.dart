@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'alert_model.dart';
 import 'journey_model.dart';
 import 'police_journey_model.dart';
 
@@ -346,6 +347,11 @@ class PatrolAlert {
   final String status; // 'Active', 'Acknowledged', 'Resolved'
   final LatLng position;
   final String sectorId;
+  final String? civilianName;
+  final String? civilianPhone;
+  final String? civilianDistrict;
+  final String? alertType;
+  final DateTime? createdAt;
 
   const PatrolAlert({
     required this.id,
@@ -358,7 +364,76 @@ class PatrolAlert {
     this.status = 'Active',
     required this.position,
     required this.sectorId,
+    this.civilianName,
+    this.civilianPhone,
+    this.civilianDistrict,
+    this.alertType,
+    this.createdAt,
   });
+
+  factory PatrolAlert.fromAlertModel(AlertModel m) {
+    AlertSeverity sev = AlertSeverity.medium;
+    if (m.status.toLowerCase() == 'resolved') {
+      sev = AlertSeverity.resolved;
+    } else if (m.alertType == 'sos' || m.alertType == 'need_help' || (m.riskScore != null && m.riskScore! >= 8.0)) {
+      sev = AlertSeverity.critical;
+    } else if (m.riskScore != null && m.riskScore! >= 5.0) {
+      sev = AlertSeverity.high;
+    }
+
+    AlertIconCategory iconCat = AlertIconCategory.womenSafety;
+    if (m.status.toLowerCase() == 'resolved') {
+      iconCat = AlertIconCategory.resolvedCheck;
+    } else if (m.alertType == 'sos' || m.alertType == 'need_help') {
+      iconCat = AlertIconCategory.womenSafety;
+    } else {
+      iconCat = AlertIconCategory.routeDeviation;
+    }
+
+    final diff = DateTime.now().difference(m.createdAt);
+    String timeStr = 'Just now';
+    if (diff.inDays > 0) {
+      timeStr = '${diff.inDays}d ago';
+    } else if (diff.inHours > 0) {
+      timeStr = '${diff.inHours}h ago';
+    } else if (diff.inMinutes > 0) {
+      timeStr = '${diff.inMinutes}m ago';
+    }
+
+    String titleStr = '🚨 Emergency SOS — Help Requested';
+    if (m.alertType == 'sos') {
+      titleStr = '🚨 Instant SOS Alert (${m.civilianName ?? "Civilian"})';
+    } else if (m.alertType == 'need_help') {
+      titleStr = '🚨 Emergency Help Request (${m.civilianName ?? "Civilian"})';
+    } else if (m.status.toLowerCase() == 'resolved') {
+      titleStr = 'Safe Journey Alert (${m.civilianName ?? "Civilian"})';
+    }
+
+    final pos = LatLng(
+      m.lat != 0.0 ? m.lat : 19.0596,
+      m.lon != 0.0 ? m.lon : 72.8368,
+    );
+
+    final locStr = m.locationName ?? m.civilianDistrict ?? '${pos.latitude.toStringAsFixed(3)}, ${pos.longitude.toStringAsFixed(3)}';
+
+    return PatrolAlert(
+      id: m.id,
+      severity: sev,
+      iconCategory: iconCat,
+      title: titleStr,
+      locationName: locStr,
+      timeAgo: timeStr,
+      description: m.message ?? 'Civilian emergency SOS triggered with live GPS coordinates.',
+      status: m.status.toLowerCase() == 'resolved' ? 'Resolved' : 'Active',
+      position: pos,
+      sectorId: m.h3Cell ?? 'sos_cell',
+      civilianName: m.civilianName,
+      civilianPhone: m.civilianPhone,
+      civilianDistrict: m.civilianDistrict,
+      alertType: m.alertType,
+      createdAt: m.createdAt,
+    );
+  }
 
   bool get isCritical => severity == AlertSeverity.critical;
   String get sectorName => locationName;

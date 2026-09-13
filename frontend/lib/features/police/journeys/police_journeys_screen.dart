@@ -1019,14 +1019,14 @@ class _PoliceJourneysScreenState extends State<PoliceJourneysScreen> {
                     ),
                     const SizedBox(height: 10),
 
-                    // Origin -> Destination
+                    // Destination
                     Row(
                       children: [
                         Icon(Icons.location_on_outlined, size: 14, color: textSecondary),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            '${journey.startLocation}  ➔  ${journey.destination}',
+                            journey.destination,
                             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: textPrimary),
                             overflow: TextOverflow.ellipsis,
                           ),

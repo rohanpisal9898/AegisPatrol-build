@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../services/alert_service.dart';
 import '../../../../services/location_service.dart';
@@ -6,17 +7,32 @@ import '../../../../services/location_service.dart';
 class SosDialog extends StatefulWidget {
   final String token;
   final String? journeyId;
+  final LatLng? currentPos;
+  final String? district;
 
   const SosDialog({
     super.key,
     required this.token,
     this.journeyId,
+    this.currentPos,
+    this.district,
   });
 
-  static Future<void> show(BuildContext context, {required String token, String? journeyId}) {
+  static Future<void> show(
+    BuildContext context, {
+    required String token,
+    String? journeyId,
+    LatLng? currentPos,
+    String? district,
+  }) {
     return showDialog(
       context: context,
-      builder: (ctx) => SosDialog(token: token, journeyId: journeyId),
+      builder: (ctx) => SosDialog(
+        token: token,
+        journeyId: journeyId,
+        currentPos: currentPos,
+        district: district,
+      ),
     );
   }
 
@@ -35,14 +51,22 @@ class _SosDialogState extends State<SosDialog> {
       _errorMessage = null;
     });
 
-    final locResult = await LocationService.getCurrentLocation();
-    final double lat = locResult.position?.latitude ?? 19.0596;
-    final double lon = locResult.position?.longitude ?? 72.8368;
+    double lat = widget.currentPos?.latitude ?? 19.0596;
+    double lon = widget.currentPos?.longitude ?? 72.8368;
+
+    try {
+      final locResult = await LocationService.getCurrentLocation();
+      if (locResult.position != null) {
+        lat = locResult.position!.latitude;
+        lon = locResult.position!.longitude;
+      }
+    } catch (_) {}
 
     final alertService = AlertService();
     final res = await alertService.createAlert(
       token: widget.token,
       journeyId: widget.journeyId,
+      district: widget.district,
       lat: lat,
       lon: lon,
       alertType: 'sos',

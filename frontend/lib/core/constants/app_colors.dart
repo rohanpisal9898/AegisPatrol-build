@@ -36,6 +36,8 @@ class AppColors {
   static const Color riskHighBg = Color(0xFFFEE2E2);
   static const Color riskMedium = Color(0xFFF59E0B); // Orange
   static const Color riskMediumBg = Color(0xFFFEF3C7);
+  static const Color riskUnusual = Color(0xFFF59E0B);
+  static const Color riskUnusualBg = Color(0xFFFEF3C7);
   static const Color riskLow = Color(0xFF10B981); // Green
   static const Color riskLowBg = Color(0xFFD1FAE5);
 
