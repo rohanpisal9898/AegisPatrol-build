@@ -1,8 +1,8 @@
 class ApiEndpoints {
-  // Configurable backend URL with automatic fallback to local backend for development
+  // Production Render Backend URL (with override support via --dart-define=BACKEND_URL=...)
   static const String baseUrl = String.fromEnvironment(
     'BACKEND_URL',
-    defaultValue: 'http://127.0.0.1:8000',
+    defaultValue: 'https://d-h-a-a-l.onrender.com',
   );
 
   // Civilian Auth

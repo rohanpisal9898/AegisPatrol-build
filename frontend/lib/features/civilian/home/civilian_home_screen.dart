@@ -45,6 +45,8 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
       if (auth.token != null && auth.token!.isNotEmpty) {
         controller.checkAndRestoreActiveJourney(token: auth.token!);
       }
+      // Proactively request and lock current GPS coordinates on screen entry
+      controller.fetchCurrentLocation();
     });
   }
 
@@ -211,6 +213,78 @@ class _CivilianHomeContentState extends State<_CivilianHomeContent> {
                 ],
               ),
             ],
+          ),
+          // GPS Location Status / Re-locate Button
+          Consumer<CivilianHomeController>(
+            builder: (context, controller, _) {
+              return Material(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                elevation: 1,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Acquiring real-time GPS coordinates...'),
+                        duration: Duration(seconds: 1),
+                        backgroundColor: AppColors.civilianPink,
+                      ),
+                    );
+                    await controller.fetchCurrentLocation();
+                    if (context.mounted) {
+                      final diag = controller.locationDiagnostic ?? 'GPS status unknown';
+                      final isReal = controller.isRealGpsLocked;
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Row(
+                            children: [
+                              Icon(
+                                isReal ? Icons.check_circle_rounded : Icons.info_rounded,
+                                color: isReal ? const Color(0xFF16A34A) : const Color(0xFFF59E0B),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(isReal ? 'GPS Locked' : 'Location Status', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                            ],
+                          ),
+                          content: Text(diag, style: const TextStyle(fontSize: 13, height: 1.4)),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(),
+                              child: const Text('OK', style: TextStyle(fontWeight: FontWeight.w700)),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.civilianPink.withValues(alpha: 0.3)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.my_location_rounded, color: AppColors.civilianPink, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          'GPS',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.civilianPink,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

@@ -27,6 +27,10 @@ class CivilianHomeController extends ChangeNotifier {
   // Location State (defaults to Mumbai central base)
   LatLng? _currentPosition = const LatLng(19.0760, 72.8777);
   LatLng? get currentPosition => _currentPosition;
+  String? _locationDiagnostic;
+  String? get locationDiagnostic => _locationDiagnostic;
+  bool _isRealGpsLocked = false;
+  bool get isRealGpsLocked => _isRealGpsLocked;
 
 
   LocationPermissionState _locationPermissionState = LocationPermissionState.granted;
@@ -208,12 +212,21 @@ class CivilianHomeController extends ChangeNotifier {
     final result = await LocationService.getCurrentLocation();
     _isLoading = false;
     _locationPermissionState = result.status;
+    _isRealGpsLocked = result.isRealGps;
 
-    if (result.isSuccess && result.position != null) {
+    if (result.position != null) {
       _currentPosition = result.position;
-      _errorMessage = null;
+      if (result.isRealGps) {
+        final acc = result.accuracy != null ? '±${result.accuracy!.toStringAsFixed(1)}m' : '';
+        _locationDiagnostic = 'Live GPS: (${result.position!.latitude.toStringAsFixed(4)}, ${result.position!.longitude.toStringAsFixed(4)}) $acc';
+        _errorMessage = null;
+      } else {
+        _locationDiagnostic = 'Default Centroid (${result.position!.latitude.toStringAsFixed(4)}, ${result.position!.longitude.toStringAsFixed(4)})';
+        _errorMessage = result.errorMessage;
+      }
     } else {
       _errorMessage = result.errorMessage ?? 'Location unavailable';
+      _locationDiagnostic = 'GPS Unavailable: $_errorMessage';
     }
     notifyListeners();
   }

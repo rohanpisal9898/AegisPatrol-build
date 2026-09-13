@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/location_service.dart';
 import '../role_selection/role_selection_screen.dart';
 import '../civilian/civilian_main_screen.dart';
 import '../police/police_main_screen.dart';
@@ -21,6 +23,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuthSession() async {
+    // Proactively initialize location permission on app startup
+    LocationService.requestPermission().catchError((_) => LocationPermission.denied);
+
     // Add brief delay for smooth visual transition
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
