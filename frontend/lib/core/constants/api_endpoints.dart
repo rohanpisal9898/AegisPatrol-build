@@ -1,7 +1,9 @@
 class ApiEndpoints {
-  // In Android emulator use 10.0.2.2, for iOS/Web/Desktop use 127.0.0.1 or your LAN IP.
-  // We can provide a configurable or sensible default.
-  static const String baseUrl = 'http://127.0.0.1:8000';
+  // Configurable backend URL with automatic fallback to local backend for development
+  static const String baseUrl = String.fromEnvironment(
+    'BACKEND_URL',
+    defaultValue: 'http://127.0.0.1:8000',
+  );
 
   // Civilian Auth
   static const String civilianSignup = '$baseUrl/auth/civilian/signup';
