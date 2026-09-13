@@ -14,18 +14,21 @@ class PoliceAlertsScreen extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border(top: BorderSide(color: isDarkMode ? const Color(0xFF1E3A5F) : const Color(0xFFE2E8F0))),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      builder: (ctx) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border(top: BorderSide(color: isDarkMode ? const Color(0xFF1E3A5F) : const Color(0xFFE2E8F0))),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Center(
               child: Container(
                 width: 40,
@@ -155,11 +158,13 @@ class PoliceAlertsScreen extends StatelessWidget {
                 },
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -359,29 +364,35 @@ class PoliceAlertsScreen extends StatelessWidget {
                                           // Alert Title
                                           Text(
                                             alert.title,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              fontSize: 14.5,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.w800,
                                               color: textPrimary,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
 
-                                          // Location & Time
+                                          // Location & Time (Responsive Row with Flexible location)
                                           Row(
                                             children: [
                                               Icon(Icons.location_on_outlined, size: 12, color: textSecondary),
                                               const SizedBox(width: 3),
-                                              Text(
-                                                alert.locationName,
-                                                style: TextStyle(fontSize: 11.5, color: textSecondary, fontWeight: FontWeight.w500),
+                                              Flexible(
+                                                child: Text(
+                                                  alert.locationName,
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w500),
+                                                ),
                                               ),
-                                              const SizedBox(width: 8),
+                                              const SizedBox(width: 6),
                                               Icon(Icons.access_time_rounded, size: 11, color: textSecondary),
                                               const SizedBox(width: 3),
                                               Text(
                                                 alert.timeAgo,
-                                                style: TextStyle(fontSize: 11.5, color: textSecondary),
+                                                style: TextStyle(fontSize: 11, color: textSecondary),
                                               ),
                                             ],
                                           ),
@@ -390,8 +401,10 @@ class PoliceAlertsScreen extends StatelessWidget {
                                           // Description
                                           Text(
                                             alert.description,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 11.5,
                                               color: textSecondary,
                                               height: 1.3,
                                             ),
@@ -399,11 +412,11 @@ class PoliceAlertsScreen extends StatelessWidget {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: 6),
 
                                     // Right Chevron
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 18),
+                                      padding: const EdgeInsets.only(top: 14),
                                       child: Icon(Icons.chevron_right_rounded, color: textSecondary, size: 18),
                                     ),
                                   ],

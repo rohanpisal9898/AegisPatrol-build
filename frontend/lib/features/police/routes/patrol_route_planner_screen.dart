@@ -272,7 +272,7 @@ class _PatrolRoutePlannerScreenState extends State<PatrolRoutePlannerScreen> {
               ),
             ),
 
-            // Priority Areas Row (Reference A Screen 3)
+            // Priority Areas Row (Responsive Horizontal Scroll)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -287,14 +287,17 @@ class _PatrolRoutePlannerScreenState extends State<PatrolRoutePlannerScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      _buildPriorityPill('High Risk', '${route.highRiskAreas}', const Color(0xFFEA3F4F), isDarkMode),
-                      const SizedBox(width: 10),
-                      _buildPriorityPill('Medium Risk', '${route.mediumRiskAreas}', const Color(0xFFF4A51C), isDarkMode),
-                      const SizedBox(width: 10),
-                      _buildPriorityPill('Low Risk', '${route.lowRiskAreas}', const Color(0xFF18B875), isDarkMode),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildPriorityPill('High Risk', '${route.highRiskAreas}', const Color(0xFFEA3F4F), isDarkMode),
+                        const SizedBox(width: 8),
+                        _buildPriorityPill('Medium Risk', '${route.mediumRiskAreas}', const Color(0xFFF4A51C), isDarkMode),
+                        const SizedBox(width: 8),
+                        _buildPriorityPill('Low Risk', '${route.lowRiskAreas}', const Color(0xFF18B875), isDarkMode),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -345,9 +348,12 @@ class _PatrolRoutePlannerScreenState extends State<PatrolRoutePlannerScreen> {
                           Expanded(
                             child: Text(
                               stop.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: textPrimary),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
                             '${stop.distanceKm} km',
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textSecondary),

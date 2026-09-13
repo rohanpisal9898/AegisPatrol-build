@@ -80,31 +80,31 @@ class _PoliceMainScreenState extends State<PoliceMainScreen> {
             unselectedItemColor: unselectedColor,
             selectedLabelStyle: const TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 11.5,
+              fontSize: 10.5,
               color: selectedColor,
             ),
             unselectedLabelStyle: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: 11,
+              fontSize: 10,
               color: unselectedColor,
             ),
             type: BottomNavigationBarType.fixed,
             items: [
               const BottomNavigationBarItem(
-                icon: Icon(Icons.shield_outlined),
-                activeIcon: Icon(Icons.shield_rounded),
+                icon: Icon(Icons.shield_outlined, size: 22),
+                activeIcon: Icon(Icons.shield_rounded, size: 22),
                 label: 'Home',
               ),
               const BottomNavigationBarItem(
-                icon: Icon(Icons.assignment_outlined),
-                activeIcon: Icon(Icons.assignment_rounded),
-                label: 'Assignments',
+                icon: Icon(Icons.assignment_outlined, size: 22),
+                activeIcon: Icon(Icons.assignment_rounded, size: 22),
+                label: 'Tasks',
               ),
               BottomNavigationBarItem(
                 icon: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    const Icon(Icons.notifications_none_rounded),
+                    const Icon(Icons.notifications_none_rounded, size: 22),
                     if (activeAlertsCount > 0)
                       Positioned(
                         right: -2,
@@ -123,7 +123,7 @@ class _PoliceMainScreenState extends State<PoliceMainScreen> {
                 activeIcon: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    const Icon(Icons.notifications_rounded),
+                    const Icon(Icons.notifications_rounded, size: 22),
                     if (activeAlertsCount > 0)
                       Positioned(
                         right: -2,
@@ -142,13 +142,13 @@ class _PoliceMainScreenState extends State<PoliceMainScreen> {
                 label: 'Alerts',
               ),
               const BottomNavigationBarItem(
-                icon: Icon(Icons.directions_walk_rounded),
-                activeIcon: Icon(Icons.transfer_within_a_station_rounded),
-                label: 'Safe Journeys',
+                icon: Icon(Icons.directions_walk_rounded, size: 22),
+                activeIcon: Icon(Icons.transfer_within_a_station_rounded, size: 22),
+                label: 'Journeys',
               ),
               const BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline_rounded),
-                activeIcon: Icon(Icons.person_rounded),
+                icon: Icon(Icons.person_outline_rounded, size: 22),
+                activeIcon: Icon(Icons.person_rounded, size: 22),
                 label: 'Profile',
               ),
             ],

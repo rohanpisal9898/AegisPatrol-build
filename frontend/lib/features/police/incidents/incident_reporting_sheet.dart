@@ -80,16 +80,18 @@ class _IncidentReportingSheetState extends State<IncidentReportingSheet> {
             const SizedBox(height: 16),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Report Patrol Incident',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: textPrimary,
+                Expanded(
+                  child: Text(
+                    'Report Patrol Incident',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: textPrimary,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -167,7 +169,9 @@ class _IncidentReportingSheetState extends State<IncidentReportingSheet> {
             Text('Severity Level', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: textPrimary)),
             const SizedBox(height: 8),
             Row(
-              children: _severities.map((sev) {
+              children: _severities.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final sev = entry.value;
                 final isSelected = _selectedSeverity == sev;
                 Color chipColor;
                 if (sev == 'Critical') {
@@ -182,7 +186,7 @@ class _IncidentReportingSheetState extends State<IncidentReportingSheet> {
 
                 return Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 6),
+                    padding: EdgeInsets.only(right: idx < _severities.length - 1 ? 6 : 0),
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedSeverity = sev),
                       child: Container(
@@ -193,12 +197,15 @@ class _IncidentReportingSheetState extends State<IncidentReportingSheet> {
                           border: Border.all(color: isSelected ? chipColor : borderColor),
                         ),
                         alignment: Alignment.center,
-                        child: Text(
-                          sev,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: isSelected ? Colors.white : textSecondary,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            sev,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: isSelected ? Colors.white : textSecondary,
+                            ),
                           ),
                         ),
                       ),

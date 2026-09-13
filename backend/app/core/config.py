@@ -19,7 +19,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
     
     # Gemini AI Placeholder
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "PASTE_YOUR_GEMINI_API_KEY_HERE")
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+
+    # Render Self-Pinging Keep-Alive Configuration
+    RENDER_EXTERNAL_URL: str = os.getenv("RENDER_EXTERNAL_URL", "")
+    BACKEND_URL: str = os.getenv("BACKEND_URL", "")
+    SELF_PING_ENABLED: bool = os.getenv("SELF_PING_ENABLED", "true").lower() in ("true", "1", "yes")
+    SELF_PING_INTERVAL_SECONDS: int = int(os.getenv("SELF_PING_INTERVAL_SECONDS", "600"))
 
     model_config = ConfigDict(
         env_file=".env",

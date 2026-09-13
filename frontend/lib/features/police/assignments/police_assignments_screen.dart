@@ -273,15 +273,17 @@ class _PoliceAssignmentsScreenState extends State<PoliceAssignmentsScreen> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           item.sectorName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 14.5,
                                             fontWeight: FontWeight.w800,
                                             color: textPrimary,
                                           ),
@@ -291,17 +293,22 @@ class _PoliceAssignmentsScreenState extends State<PoliceAssignmentsScreen> {
                                           children: [
                                             Icon(Icons.location_on_outlined, size: 12, color: textSecondary),
                                             const SizedBox(width: 3),
-                                            Text(
-                                              item.districtName,
-                                              style: TextStyle(fontSize: 11.5, color: textSecondary),
+                                            Flexible(
+                                              child: Text(
+                                                item.districtName,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(fontSize: 11.5, color: textSecondary),
+                                              ),
                                             ),
                                           ],
                                         ),
                                       ],
                                     ),
                                   ),
+                                  const SizedBox(width: 6),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                     decoration: BoxDecoration(
                                       color: item.riskBadgeBg,
                                       borderRadius: BorderRadius.circular(6),
@@ -309,13 +316,13 @@ class _PoliceAssignmentsScreenState extends State<PoliceAssignmentsScreen> {
                                     child: Text(
                                       'Risk ${item.riskScore}',
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 10.5,
                                         fontWeight: FontWeight.w800,
                                         color: item.riskBadgeColor,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 4),
                                   Icon(Icons.chevron_right_rounded, color: textSecondary, size: 18),
                                 ],
                               ),
@@ -330,6 +337,7 @@ class _PoliceAssignmentsScreenState extends State<PoliceAssignmentsScreen> {
                                       Text('Coverage', style: TextStyle(fontSize: 11, color: textSecondary)),
                                       const SizedBox(height: 2),
                                       Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Container(
                                             width: 7,
@@ -345,7 +353,7 @@ class _PoliceAssignmentsScreenState extends State<PoliceAssignmentsScreen> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(width: 24),
+                                  const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,

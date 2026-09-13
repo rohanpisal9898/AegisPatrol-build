@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:aegispatrol/providers/auth_provider.dart';
 import 'package:aegispatrol/providers/patrol_intelligence_provider.dart';
 import 'package:aegispatrol/features/role_selection/role_selection_screen.dart';
-import 'package:aegispatrol/features/role_selection/app_mode_selection_screen.dart';
 import 'package:aegispatrol/features/civilian/civilian_main_screen.dart';
 import 'package:aegispatrol/features/police/police_main_screen.dart';
 import 'package:aegispatrol/features/auth/civilian_auth/civilian_login_screen.dart';
@@ -23,22 +22,14 @@ Widget createTestApp(Widget child) {
 }
 
 void main() {
-  testWidgets('RoleSelectionScreen renders Civilian and Police options', (WidgetTester tester) async {
+  testWidgets('RoleSelectionScreen renders Civilian and Police options matching AegisPatrol theme', (WidgetTester tester) async {
     await tester.pumpWidget(createTestApp(const RoleSelectionScreen()));
 
     expect(find.text('AEGISPATROL'), findsOneWidget);
+    expect(find.text('Predict. Protect. Patrol.'), findsOneWidget);
     expect(find.text('Choose your role'), findsOneWidget);
     expect(find.text('CIVILIAN'), findsOneWidget);
     expect(find.text('POLICE'), findsOneWidget);
-  });
-
-  testWidgets('AppModeSelectionScreen renders Citizen and Police Patrol options', (WidgetTester tester) async {
-    await tester.pumpWidget(createTestApp(const AppModeSelectionScreen()));
-
-    expect(find.text('NIRBHAY • GUARDIAN'), findsOneWidget);
-    expect(find.text('How are you using the app?'), findsOneWidget);
-    expect(find.text('POLICE PATROL'), findsOneWidget);
-    expect(find.text('CITIZEN'), findsOneWidget);
   });
 
   testWidgets('CivilianLoginScreen renders civilian login form', (WidgetTester tester) async {
@@ -104,15 +95,15 @@ void main() {
     expect(find.text('Alerts'), findsNothing);
   });
 
-  testWidgets('PoliceMainScreen renders exactly 5 navigation tabs: Home, Assignments, Alerts, Safe Journeys, Profile', (WidgetTester tester) async {
+  testWidgets('PoliceMainScreen renders exactly 5 navigation tabs: Home, Tasks, Alerts, Journeys, Profile', (WidgetTester tester) async {
     await tester.pumpWidget(createTestApp(const PoliceMainScreen()));
 
     expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Assignments'), findsOneWidget);
+    expect(find.text('Tasks'), findsOneWidget);
     expect(find.text('Alerts'), findsOneWidget);
-    expect(find.text('Safe Journeys'), findsOneWidget);
+    expect(find.text('Journeys'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('GUARDIAN PATROL'), findsOneWidget);
+    expect(find.text('AEGISPATROL'), findsOneWidget);
     expect(find.text('CURRENT PRIORITY'), findsOneWidget);
     expect(find.text('Andheri East'), findsOneWidget);
   });
@@ -149,8 +140,8 @@ void main() {
 
     // Verify Police Bottom Navigation tabs
     expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Assignments'), findsOneWidget);
+    expect(find.text('Tasks'), findsOneWidget);
     expect(find.text('Alerts'), findsOneWidget);
-    expect(find.text('Safe Journeys'), findsOneWidget);
+    expect(find.text('Journeys'), findsOneWidget);
   });
 }

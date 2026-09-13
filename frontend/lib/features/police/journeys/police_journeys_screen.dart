@@ -145,268 +145,286 @@ class _PoliceJourneysScreenState extends State<PoliceJourneysScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border(top: BorderSide(color: borderColor)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 42,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
-                  borderRadius: BorderRadius.circular(2),
+      builder: (ctx) => SafeArea(
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.90,
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border(top: BorderSide(color: borderColor)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 42,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 14),
+              const SizedBox(height: 12),
 
-            // Header Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        journey.id,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(Icons.person_outline_rounded, size: 14, color: textSecondary),
-                          const SizedBox(width: 4),
-                          Text(
-                            journey.civilianName,
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: textPrimary),
-                          ),
-                          if (journey.district != null) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF147DF5).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
+              // Header Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          journey.id,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Icon(Icons.person_outline_rounded, size: 14, color: textSecondary),
+                            const SizedBox(width: 4),
+                            Flexible(
                               child: Text(
-                                journey.district!,
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF147DF5)),
+                                journey.civilianName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: textPrimary),
                               ),
                             ),
+                            if (journey.district != null) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF147DF5).withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  journey.district!,
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF147DF5)),
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: journey.statusBadgeBg,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    journey.status == SafeJourneyStatus.highRisk
-                        ? 'High Risk'
-                        : (journey.status == SafeJourneyStatus.attention ? 'Attention' : 'Normal'),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: journey.statusBadgeColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-
-            // Live Tracking Map
-            Container(
-              height: 220,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: borderColor),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: FlutterMap(
-                options: MapOptions(
-                  initialCenter: journey.currentPos,
-                  initialZoom: 12.5,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate: isDarkMode
-                        ? 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-                        : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.aegispatrol.safety',
-                  ),
-                  if (journey.routePoints.isNotEmpty)
-                    PolylineLayer(
-                      polylines: [
-                        Polyline(
-                          points: journey.routePoints,
-                          strokeWidth: 4.5,
-                          color: journey.status == SafeJourneyStatus.highRisk
-                              ? const Color(0xFFEA3F4F)
-                              : const Color(0xFF147DF5),
                         ),
                       ],
                     ),
-                  MarkerLayer(
-                    markers: [
-                      // Origin marker
-                      if (journey.routePoints.isNotEmpty)
-                        Marker(
-                          point: journey.routePoints.first,
-                          width: 28,
-                          height: 28,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF10B981),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.trip_origin_rounded, color: Colors.white, size: 16),
-                          ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: journey.statusBadgeBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      journey.status == SafeJourneyStatus.highRisk
+                          ? 'High Risk'
+                          : (journey.status == SafeJourneyStatus.attention ? 'Attention' : 'Normal'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: journey.statusBadgeColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Scrollable Details (Map + Metadata Info Card)
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Live Tracking Map
+                      Container(
+                        height: 180,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: borderColor),
                         ),
-                      // Current GPS location marker
-                      Marker(
-                        point: journey.currentPos,
-                        width: 38,
-                        height: 38,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: journey.statusBadgeColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: journey.statusBadgeColor.withValues(alpha: 0.4),
-                                blurRadius: 8,
-                                spreadRadius: 2,
-                              ),
-                            ],
+                        clipBehavior: Clip.antiAlias,
+                        child: FlutterMap(
+                          options: MapOptions(
+                            initialCenter: journey.currentPos,
+                            initialZoom: 12.5,
                           ),
-                          child: Icon(journey.travelModeIcon, color: Colors.white, size: 20),
+                          children: [
+                            TileLayer(
+                              urlTemplate: isDarkMode
+                                  ? 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                                  : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'com.aegispatrol.safety',
+                            ),
+                            if (journey.routePoints.isNotEmpty)
+                              PolylineLayer(
+                                polylines: [
+                                  Polyline(
+                                    points: journey.routePoints,
+                                    strokeWidth: 4.5,
+                                    color: journey.status == SafeJourneyStatus.highRisk
+                                        ? const Color(0xFFEA3F4F)
+                                        : const Color(0xFF147DF5),
+                                  ),
+                                ],
+                              ),
+                            MarkerLayer(
+                              markers: [
+                                // Origin marker
+                                if (journey.routePoints.isNotEmpty)
+                                  Marker(
+                                    point: journey.routePoints.first,
+                                    width: 26,
+                                    height: 26,
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF10B981),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.trip_origin_rounded, color: Colors.white, size: 14),
+                                    ),
+                                  ),
+                                // Current GPS location marker
+                                Marker(
+                                  point: journey.currentPos,
+                                  width: 36,
+                                  height: 36,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: journey.statusBadgeColor,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.white, width: 2),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: journey.statusBadgeColor.withValues(alpha: 0.4),
+                                          blurRadius: 8,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(journey.travelModeIcon, color: Colors.white, size: 18),
+                                  ),
+                                ),
+                                // Destination marker
+                                Marker(
+                                  point: journey.destPos,
+                                  width: 30,
+                                  height: 30,
+                                  child: const Icon(Icons.location_on_rounded, color: Color(0xFFEA3F4F), size: 30),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      // Destination marker
-                      Marker(
-                        point: journey.destPos,
-                        width: 32,
-                        height: 32,
-                        child: const Icon(Icons.location_on_rounded, color: Color(0xFFEA3F4F), size: 32),
+                      const SizedBox(height: 12),
+
+                      // Journey Info Card
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDarkMode ? const Color(0xFF071A2E) : const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildModalRow('Origin', journey.startLocation, textPrimary, textSecondary),
+                            const SizedBox(height: 6),
+                            _buildModalRow('Destination', journey.destination, textPrimary, textSecondary),
+                            const SizedBox(height: 6),
+                            _buildModalRow('Mode & Duration', '${journey.travelMode} • ${journey.durationMinutes} min total', textPrimary, textSecondary),
+                            const SizedBox(height: 6),
+                            _buildModalRow('Elapsed / ETA', '${journey.elapsedMinutes} min elapsed • ETA ${journey.eta}', textPrimary, textSecondary),
+                            const SizedBox(height: 6),
+                            _buildModalRow('Status Reason', journey.statusReason, journey.statusBadgeColor, textSecondary),
+                            const SizedBox(height: 6),
+                            _buildModalRow('Risk Assessment', '${journey.riskScore.toStringAsFixed(1)} / 10.0', textPrimary, textSecondary),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
+              const SizedBox(height: 14),
 
-            // Journey Info Card
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isDarkMode ? const Color(0xFF071A2E) : const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor),
-              ),
-              child: Column(
+              // Actions Row
+              Row(
                 children: [
-                  _buildModalRow('Origin', journey.startLocation, textPrimary, textSecondary),
-                  const SizedBox(height: 6),
-                  _buildModalRow('Destination', journey.destination, textPrimary, textSecondary),
-                  const SizedBox(height: 6),
-                  _buildModalRow('Mode & Duration', '${journey.travelMode} • ${journey.durationMinutes} min total', textPrimary, textSecondary),
-                  const SizedBox(height: 6),
-                  _buildModalRow('Elapsed / ETA', '${journey.elapsedMinutes} min elapsed • ETA ${journey.eta}', textPrimary, textSecondary),
-                  const SizedBox(height: 6),
-                  _buildModalRow('Status Reason', journey.statusReason, journey.statusBadgeColor, textSecondary),
-                  const SizedBox(height: 6),
-                  _buildModalRow('Risk Assessment', '${journey.riskScore.toStringAsFixed(1)} / 10.0', textPrimary, textSecondary),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: textPrimary,
+                        side: BorderSide(color: borderColor),
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Icon(Icons.phone_in_talk_rounded, size: 17),
+                      label: const Text('Contact User', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Calling civilian: ${journey.civilianName}')),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFEA3F4F),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      icon: const Icon(Icons.emergency_rounded, size: 17),
+                      label: const Text('Escalate SOS', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+                      onPressed: () {
+                        provider.escalateSafeJourney(journey.id);
+                        Navigator.of(ctx).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('SOS Escalated! Nearest patrol unit intercepted journey.'),
+                            backgroundColor: Color(0xFFEA3F4F),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-            ),
-            const Spacer(),
-
-            // Actions Row
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: textPrimary,
-                      side: BorderSide(color: borderColor),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.phone_in_talk_rounded, size: 18),
-                    label: const Text('Contact User', style: TextStyle(fontWeight: FontWeight.w700)),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Calling civilian: ${journey.civilianName}')),
-                      );
-                    },
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF18B875),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
+                  onPressed: () {
+                    provider.resolveSafeJourney(journey.id);
+                    Navigator.of(ctx).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Safe journey verified and closed.'),
+                        backgroundColor: Color(0xFF18B875),
+                      ),
+                    );
+                  },
+                  child: const Text('Mark Journey Safe & Resolved', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEA3F4F),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.emergency_rounded, size: 18),
-                    label: const Text('Escalate SOS', style: TextStyle(fontWeight: FontWeight.w700)),
-                    onPressed: () {
-                      provider.escalateSafeJourney(journey.id);
-                      Navigator.of(ctx).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('SOS Escalated! Nearest patrol unit intercepted journey.'),
-                          backgroundColor: Color(0xFFEA3F4F),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF18B875),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () {
-                  provider.resolveSafeJourney(journey.id);
-                  Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Safe journey verified and closed.'),
-                      backgroundColor: Color(0xFF18B875),
-                    ),
-                  );
-                },
-                child: const Text('Mark Journey Safe & Resolved', style: TextStyle(fontWeight: FontWeight.w700)),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -636,11 +654,11 @@ class _PoliceJourneysScreenState extends State<PoliceJourneysScreen> {
               ),
             ),
 
-            // Metric Counters Header Card
+            // Metric Counters Header Card (Responsive Expanded Distribution)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 decoration: BoxDecoration(
                   color: cardBg,
                   borderRadius: BorderRadius.circular(16),
@@ -654,74 +672,124 @@ class _PoliceJourneysScreenState extends State<PoliceJourneysScreen> {
                   ],
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Total Active
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.groups_rounded, size: 14, color: textSecondary),
-                            const SizedBox(width: 4),
-                            Text('Active (${_selectedDistrict == 'All' ? 'All' : _selectedDistrict})',
-                                style: TextStyle(fontSize: 10.5, color: textSecondary)),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text('$totalActive',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: textPrimary)),
-                      ],
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.groups_rounded, size: 13, color: textSecondary),
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  'Active',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: textSecondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            '$totalActive',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: textPrimary),
+                          ),
+                        ],
+                      ),
                     ),
-                    Container(width: 1, height: 28, color: borderColor),
+                    Container(width: 1, height: 26, color: borderColor),
 
                     // Normal
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFF18B875), shape: BoxShape.circle)),
-                            const SizedBox(width: 4),
-                            Text('Normal', style: TextStyle(fontSize: 10.5, color: textSecondary)),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text('$normalCount',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF18B875))),
-                      ],
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF18B875), shape: BoxShape.circle)),
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  'Normal',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: textSecondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            '$normalCount',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF18B875)),
+                          ),
+                        ],
+                      ),
                     ),
-                    Container(width: 1, height: 28, color: borderColor),
+                    Container(width: 1, height: 26, color: borderColor),
 
                     // Attention
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFFF4A51C), shape: BoxShape.circle)),
-                            const SizedBox(width: 4),
-                            Text('Attention', style: TextStyle(fontSize: 10.5, color: textSecondary)),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text('$attentionCount',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFFF4A51C))),
-                      ],
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFFF4A51C), shape: BoxShape.circle)),
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  'Attention',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: textSecondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            '$attentionCount',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFFF4A51C)),
+                          ),
+                        ],
+                      ),
                     ),
-                    Container(width: 1, height: 28, color: borderColor),
+                    Container(width: 1, height: 26, color: borderColor),
 
                     // High Risk
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFFEA3F4F), shape: BoxShape.circle)),
-                            const SizedBox(width: 4),
-                            Text('High Risk', style: TextStyle(fontSize: 10.5, color: textSecondary)),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text('$highRiskCount',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFFEA3F4F))),
-                      ],
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFFEA3F4F), shape: BoxShape.circle)),
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  'High Risk',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: textSecondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            '$highRiskCount',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFFEA3F4F)),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

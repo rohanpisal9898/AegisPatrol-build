@@ -416,9 +416,11 @@ class HexagonRiskDetailSheet extends StatelessWidget {
         Icon(icon, size: 16, color: color),
         const SizedBox(width: 8),
         SizedBox(
-          width: 100,
+          width: 85,
           child: Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textPrimary),
           ),
         ),

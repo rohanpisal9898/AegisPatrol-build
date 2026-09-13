@@ -194,9 +194,9 @@ class _PoliceHomeScreenState extends State<PoliceHomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              isDarkMode ? 'GUARDIAN PATROL' : 'NIRBHAY',
-                              style: const TextStyle(
+                            const Text(
+                              'AEGISPATROL',
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
@@ -254,133 +254,44 @@ class _PoliceHomeScreenState extends State<PoliceHomeScreen> {
                         ),
                         onPressed: provider.toggleTheme,
                       ),
-
-                      // Notification Bell with Critical Count Badge
-                      Stack(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 22),
-                            onPressed: () => provider.setAlertTab('All'),
-                          ),
-                          Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFEA3F4F),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ],
               ),
             ),
 
-            // City Selector & Metric Cards Header (Reference B Screen 1)
+            // Risk Overview Metric Bar
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: cardBg,
                 border: Border(bottom: BorderSide(color: borderColor)),
               ),
-              child: Column(
+              child: Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // City Dropdown Selector
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isDarkMode ? const Color(0xFF071A2E) : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: borderColor),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: provider.selectedCity,
-                            dropdownColor: cardBg,
-                            icon: const Icon(Icons.arrow_drop_down_rounded, size: 20),
-                            isDense: true,
-                            items: provider.supportedCities.map((city) {
-                              return DropdownMenuItem(
-                                value: city,
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF147DF5)),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      city,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w800,
-                                        color: textPrimary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              if (val != null) provider.selectCity(val);
-                            },
-                          ),
-                        ),
+                  const Icon(Icons.radar_rounded, size: 15, color: Color(0xFF147DF5)),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      'HOTSPOTS',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: textSecondary,
+                        letterSpacing: 0.6,
                       ),
-
-                      // 3 Metric Counters: High Risk | Elevated Risk | Low Risk
-                      Row(
-                        children: [
-                          _buildMetricCounter('High', '$highCount', const Color(0xFFEA3F4F), textPrimary, textSecondary),
-                          const SizedBox(width: 14),
-                          _buildMetricCounter('Elevated', '$elevatedCount', const Color(0xFFF4A51C), textPrimary, textSecondary),
-                          const SizedBox(width: 14),
-                          _buildMetricCounter('Low', '$lowCount', const Color(0xFF18B875), textPrimary, textSecondary),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Crime Category Filter Pills (Reference A Screen 1)
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: provider.crimeCategories.map((cat) {
-                        final isSelected = provider.activeCategoryFilter == cat;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: GestureDetector(
-                            onTap: () => provider.setCategoryFilter(cat),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: isSelected ? const Color(0xFF147DF5) : (isDarkMode ? const Color(0xFF071A2E) : const Color(0xFFF8FAFC)),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: isSelected ? const Color(0xFF147DF5) : borderColor,
-                                ),
-                              ),
-                              child: Text(
-                                cat,
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected ? Colors.white : textSecondary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
+
+                  // 3 Metric Counters: High Risk | Elevated Risk | Low Risk
+                  _buildMetricCounter('High', '$highCount', const Color(0xFFEA3F4F), textPrimary, textSecondary),
+                  const SizedBox(width: 10),
+                  _buildMetricCounter('Elevated', '$elevatedCount', const Color(0xFFF4A51C), textPrimary, textSecondary),
+                  const SizedBox(width: 10),
+                  _buildMetricCounter('Low', '$lowCount', const Color(0xFF18B875), textPrimary, textSecondary),
                 ],
               ),
             ),
@@ -575,49 +486,57 @@ class _PoliceHomeScreenState extends State<PoliceHomeScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildDockButton(
-                            icon: Icons.alt_route_rounded,
-                            label: 'Plan Route',
-                            color: const Color(0xFF147DF5),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const PatrolRoutePlannerScreen()),
-                              );
-                            },
+                          Expanded(
+                            child: _buildDockButton(
+                              icon: Icons.alt_route_rounded,
+                              label: 'Plan Route',
+                              color: const Color(0xFF147DF5),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const PatrolRoutePlannerScreen()),
+                                );
+                              },
+                            ),
                           ),
-                          _buildDockButton(
-                            icon: Icons.local_police_rounded,
-                            label: 'Live Patrol',
-                            color: const Color(0xFF18B875),
-                            onTap: () {
-                              provider.startLivePatrol();
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const LivePatrolMonitoringScreen()),
-                              );
-                            },
+                          Expanded(
+                            child: _buildDockButton(
+                              icon: Icons.local_police_rounded,
+                              label: 'Live Patrol',
+                              color: const Color(0xFF18B875),
+                              onTap: () {
+                                provider.startLivePatrol();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const LivePatrolMonitoringScreen()),
+                                );
+                              },
+                            ),
                           ),
-                          _buildDockButton(
-                            icon: Icons.pie_chart_outline_rounded,
-                            label: 'Dispatch',
-                            color: const Color(0xFFF4A51C),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const PatrolDispatchSummaryScreen()),
-                              );
-                            },
+                          Expanded(
+                            child: _buildDockButton(
+                              icon: Icons.pie_chart_outline_rounded,
+                              label: 'Dispatch',
+                              color: const Color(0xFFF4A51C),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const PatrolDispatchSummaryScreen()),
+                                );
+                              },
+                            ),
                           ),
-                          _buildDockButton(
-                            icon: Icons.add_circle_outline_rounded,
-                            label: 'Report',
-                            color: const Color(0xFFEA3F4F),
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (_) => const IncidentReportingSheet(),
-                              );
-                            },
+                          Expanded(
+                            child: _buildDockButton(
+                              icon: Icons.add_circle_outline_rounded,
+                              label: 'Report',
+                              color: const Color(0xFFEA3F4F),
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => const IncidentReportingSheet(),
+                                );
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -693,8 +612,10 @@ class _PoliceHomeScreenState extends State<PoliceHomeScreen> {
                                       const SizedBox(height: 2),
                                       Text(
                                         topPriority.sectorName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 15.5,
                                           fontWeight: FontWeight.w900,
                                           color: textPrimary,
                                         ),
@@ -702,8 +623,10 @@ class _PoliceHomeScreenState extends State<PoliceHomeScreen> {
                                       const SizedBox(height: 2),
                                       Text(
                                         'Risk ${topPriority.riskScore} • High risk • ${topPriority.coverage} coverage',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          fontSize: 11.5,
+                                          fontSize: 11,
                                           color: textSecondary,
                                         ),
                                       ),
@@ -824,9 +747,12 @@ class _PoliceHomeScreenState extends State<PoliceHomeScreen> {
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),

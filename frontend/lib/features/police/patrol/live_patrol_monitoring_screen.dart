@@ -316,39 +316,42 @@ class _LivePatrolMonitoringScreenState extends State<LivePatrolMonitoringScreen>
                   const SizedBox(height: 12),
                   // Units Summary Row: Total Units 12 Active | On Duty 10 | Available 2
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildSummaryItem('Total Units', '12 Active', textPrimary, textSecondary),
-                        Container(width: 1, height: 28, color: borderColor),
-                        _buildSummaryItem('On Duty', '10', const Color(0xFF18B875), textSecondary),
-                        Container(width: 1, height: 28, color: borderColor),
-                        _buildSummaryItem('Available', '2', const Color(0xFF147DF5), textSecondary),
+                        Expanded(child: _buildSummaryItem('Total Units', '12 Active', textPrimary, textSecondary)),
+                        Container(width: 1, height: 26, color: borderColor),
+                        Expanded(child: _buildSummaryItem('On Duty', '10', const Color(0xFF18B875), textSecondary)),
+                        Container(width: 1, height: 26, color: borderColor),
+                        Expanded(child: _buildSummaryItem('Available', '2', const Color(0xFF147DF5), textSecondary)),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  const Divider(height: 1, color: Color(0xFF1E3A5F)),
+                  const SizedBox(height: 10),
+                  Divider(height: 1, color: borderColor),
 
-                  // Tabs: Active Units | Recent Activity | Alerts (Reference A Screen 4)
+                  // Tabs: Active Units | Recent Activity | Alerts (Horizontally scrollable / responsive)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Row(
-                      children: [
-                        _buildTabItem('Active Units', 0, isDarkMode),
-                        const SizedBox(width: 10),
-                        _buildTabItem('Recent Activity', 1, isDarkMode),
-                        const SizedBox(width: 10),
-                        _buildTabItem('Alerts', 2, isDarkMode),
-                      ],
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          _buildTabItem('Active Units', 0, isDarkMode),
+                          const SizedBox(width: 8),
+                          _buildTabItem('Recent Activity', 1, isDarkMode),
+                          const SizedBox(width: 8),
+                          _buildTabItem('Alerts', 2, isDarkMode),
+                        ],
+                      ),
                     ),
                   ),
 
                   // Tab Content
                   Expanded(
                     child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       children: [
                         if (_activeTabIndex == 0) ...[
                           ...units.map(
@@ -442,14 +445,14 @@ class _LivePatrolMonitoringScreenState extends State<LivePatrolMonitoringScreen>
 
                   // Bottom Action Bar: Complete Patrol / Dispatch Summary
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     child: Row(
                       children: [
                         Expanded(
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
                               foregroundColor: const Color(0xFFEA3F4F),
-                              side: const BorderSide(color: Color(0xFFEA3F4F)),
+                              side: const BorderSide(color: Color(0xFFEA3F4F), width: 1.2),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
@@ -457,10 +460,13 @@ class _LivePatrolMonitoringScreenState extends State<LivePatrolMonitoringScreen>
                               provider.endLivePatrol();
                               Navigator.of(context).pop();
                             },
-                            child: const Text('End Patrol', style: TextStyle(fontWeight: FontWeight.w700)),
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('End Patrol', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -474,7 +480,10 @@ class _LivePatrolMonitoringScreenState extends State<LivePatrolMonitoringScreen>
                                 MaterialPageRoute(builder: (_) => const PatrolDispatchSummaryScreen()),
                               );
                             },
-                            child: const Text('Dispatch Summary', style: TextStyle(fontWeight: FontWeight.w800)),
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('Dispatch Summary', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+                            ),
                           ),
                         ),
                       ],

@@ -141,7 +141,7 @@ class PatrolDispatchSummaryScreen extends StatelessWidget {
             // Radial Coverage & Total Incidents Card (Reference A Screen 5)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
                 color: cardBg,
                 borderRadius: BorderRadius.circular(20),
@@ -151,8 +151,8 @@ class PatrolDispatchSummaryScreen extends StatelessWidget {
                 children: [
                   // Circular Progress Gauge 78% (Risk Coverage)
                   SizedBox(
-                    width: 96,
-                    height: 96,
+                    width: 74,
+                    height: 74,
                     child: CustomPaint(
                       painter: _RadialGaugePainter(
                         percentage: 0.78,
@@ -166,21 +166,21 @@ class PatrolDispatchSummaryScreen extends StatelessWidget {
                             Text(
                               '78%',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w900,
                                 color: textPrimary,
                               ),
                             ),
                             Text(
                               'Coverage',
-                              style: TextStyle(fontSize: 9.5, color: textSecondary, fontWeight: FontWeight.w600),
+                              style: TextStyle(fontSize: 8.5, color: textSecondary, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 12),
 
                   // Total Incidents Breakdown
                   Expanded(
@@ -188,40 +188,44 @@ class PatrolDispatchSummaryScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Total Incidents', style: TextStyle(fontSize: 12, color: textSecondary)),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${provider.totalIncidentsToday}',
-                                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: textPrimary),
-                                ),
-                              ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Total Incidents', style: TextStyle(fontSize: 11, color: textSecondary)),
+                                  const SizedBox(height: 1),
+                                  Text(
+                                    '${provider.totalIncidentsToday}',
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: textPrimary),
+                                  ),
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
                               decoration: BoxDecoration(
                                 color: isDarkMode ? const Color(0xFF071A2E) : const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(color: borderColor),
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text('Today', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textSecondary)),
-                                  const Icon(Icons.arrow_drop_down, size: 16),
+                                  Text('Today', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: textSecondary)),
+                                  const Icon(Icons.arrow_drop_down, size: 15),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
 
-                        // Severity distribution pills (High: 14, Medium: 22, Low: 12)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // Severity distribution pills (High, Medium, Low in responsive Wrap)
+                        Wrap(
+                          spacing: 7,
+                          runSpacing: 4,
                           children: [
                             _buildSeverityMiniStat('High', '${provider.highIncidentsCount}', const Color(0xFFEA3F4F), textPrimary, textSecondary),
                             _buildSeverityMiniStat('Medium', '${provider.mediumIncidentsCount}', const Color(0xFFF4A51C), textPrimary, textSecondary),
@@ -446,20 +450,21 @@ class PatrolDispatchSummaryScreen extends StatelessWidget {
 
   Widget _buildSeverityMiniStat(String label, String count, Color color, Color textPrimary, Color textSecondary) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: 7,
+          height: 7,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 5),
+        const SizedBox(width: 4),
         Text(
           '$label ',
-          style: TextStyle(fontSize: 11, color: textSecondary),
+          style: TextStyle(fontSize: 10.5, color: textSecondary),
         ),
         Text(
           count,
-          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: textPrimary),
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: textPrimary),
         ),
       ],
     );

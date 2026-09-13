@@ -23,7 +23,11 @@ router = APIRouter(prefix="/journeys", tags=["Civilian Journeys"])
 async def require_civilian(
     current_user: UserResponse = Depends(get_current_user_dependency)
 ) -> UserResponse:
-    # Allow any authenticated user (civilian or police) to use journey safety features
+    if current_user.role != "civilian":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only civilian accounts can access personal safety journey features."
+        )
     return current_user
 
 

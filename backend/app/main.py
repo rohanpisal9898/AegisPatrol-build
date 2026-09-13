@@ -1,6 +1,12 @@
+import warnings
+warnings.filterwarnings("ignore")
+
+import asyncio
 import logging
+import datetime
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, status
+import httpx
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -9,7 +15,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.mongodb import connect_to_mongo, close_mongo_connection
 from app.routers import civilian_auth, police_auth, users, journeys, police, alerts
-from app.services.gemini_service import gemini_service
 
 # Configure logging
 logging.basicConfig(
@@ -18,12 +23,56 @@ logging.basicConfig(
 )
 logger = logging.getLogger("aegispatrol")
 
+# Self-ping keep-alive task reference
+_ping_task: asyncio.Task = None
+
+async def _self_ping_worker(target_url: str, interval_seconds: int):
+    """
+    Background worker that periodically pings the server's /health endpoint
+    to prevent Render free tier instances from sleeping due to inactivity.
+    """
+    # Initial wait before starting pings
+    await asyncio.sleep(45)
+    ping_endpoint = f"{target_url.rstrip('/')}/health"
+    logger.info("Render self-ping keep-alive activated targeting: %s (every %ss)", ping_endpoint, interval_seconds)
+
+    while True:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(ping_endpoint)
+                if response.status_code == 200:
+                    logger.debug("Self-ping keep-alive successful: %s", response.status_code)
+                else:
+                    logger.warning("Self-ping returned status %s", response.status_code)
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.debug("Self-ping pulse note: %s", e)
+
+        await asyncio.sleep(interval_seconds)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global _ping_task
     # Startup: Connect to DB and ensure indexes
     await connect_to_mongo()
+
+    # Determine self-ping target URL for Render or cloud deployments
+    target_url = settings.RENDER_EXTERNAL_URL or settings.BACKEND_URL or "http://127.0.0.1:8000"
+    if settings.SELF_PING_ENABLED:
+        _ping_task = asyncio.create_task(
+            _self_ping_worker(target_url, settings.SELF_PING_INTERVAL_SECONDS)
+        )
+
     yield
-    # Shutdown: Close DB connections
+
+    # Shutdown: Stop self-ping task and close DB connections
+    if _ping_task and not _ping_task.done():
+        _ping_task.cancel()
+        try:
+            await _ping_task
+        except asyncio.CancelledError:
+            pass
     await close_mongo_connection()
 
 app = FastAPI(
@@ -84,5 +133,14 @@ async def root():
         "success": True,
         "app": "AegisPatrol Backend API",
         "status": "online",
-        "gemini_ready": gemini_service.is_configured
+        "self_ping": "active" if (_ping_task and not _ping_task.done()) else "standby"
+    }
+
+@app.get("/health")
+@app.get("/ping")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "app": "AegisPatrol"
     }

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/auth_provider.dart';
 import '../../role_selection/role_selection_screen.dart';
-import '../../role_selection/app_mode_selection_screen.dart';
 import '../../police/police_main_screen.dart';
 import '../../../core/storage/secure_storage_service.dart';
 import 'widgets/profile_hero_card.dart';
@@ -236,7 +235,7 @@ class CivilianProfileScreen extends StatelessWidget {
                     await SecureStorageService.clearAppMode();
                     if (!context.mounted) return;
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const AppModeSelectionScreen()),
+                      MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
                       (route) => false,
                     );
                   },
