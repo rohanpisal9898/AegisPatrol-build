@@ -41,7 +41,7 @@ async def _self_ping_worker(target_url: str, interval_seconds: int):
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get(ping_endpoint)
                 if response.status_code == 200:
-                    logger.debug("Self-ping keep-alive successful: %s", response.status_code)
+                    logger.info("⚡ Render keep-alive pulse: 200 OK (server awake)")
                 else:
                     logger.warning("Self-ping returned status %s", response.status_code)
         except asyncio.CancelledError:
