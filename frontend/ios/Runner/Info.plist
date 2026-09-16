@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>AegisPatrol requires access to your location to show live safety status, nearby alerts, and emergency response features.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>AegisPatrol requires access to your location to ensure continuous safety tracking during active journeys and emergencies.</string>
 </dict>
 </plist>

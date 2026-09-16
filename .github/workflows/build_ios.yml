@@ -1,0 +1,56 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  build-ios:
+    name: Build Flutter iOS App
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Verify Flutter & Doctor
+        run: flutter doctor -v
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: flutter pub get
+
+      - name: Build iOS (Release, No Code Sign)
+        working-directory: ./frontend
+        run: flutter build ios --release --no-codesign
+
+      - name: Package Payload into Unsigned IPA
+        working-directory: ./frontend/build/ios/iphoneos
+        run: |
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r AegisPatrol_iOS_Release.ipa Payload
+          zip -r Runner.app.zip Runner.app
+
+      - name: Upload iOS IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AegisPatrol-iOS-IPA
+          path: frontend/build/ios/iphoneos/AegisPatrol_iOS_Release.ipa
+          retention-days: 14
+
+      - name: Upload Runner.app.zip (for Simulator / Direct Testing)
+        uses: actions/upload-artifact@v4
+        with:
+          name: AegisPatrol-Runner-App
+          path: frontend/build/ios/iphoneos/Runner.app.zip
+          retention-days: 14
